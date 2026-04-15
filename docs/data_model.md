@@ -19,10 +19,18 @@
 
 | プロパティ | 型 | 説明 |
 |---|---|---|
-| theme | String | テーマ名 |
-| difficulty | Difficulty | 難易度（easy / normal / hard） |
+| genre | Genre | ジャンル（お題データプールのフィルタ条件） |
+| difficulty | Difficulty | 難易度（お題データプールのフィルタ条件） |
 | cycleCount | Int | サイクル数 |
 | playerCount | Int | 人数 |
+
+### Genre enum
+
+| 値 | 説明 |
+|---|---|
+| food | 食べ物 |
+| hobby | 趣味 |
+| random | ランダム（全ジャンル混合） |
 
 ### Difficulty enum
 
@@ -33,6 +41,22 @@
 | hard | 難しい |
 
 > サイクル数の定義: 1サイクル = 全員が1回ずつ出題。総ターン数 = サイクル数 × 人数
+
+---
+
+## Topic（お題）
+
+アプリ内蔵のデータプール。各ターンでランダムに1問選出される。
+
+| プロパティ | 型 | 説明 |
+|---|---|---|
+| id | String | 一意識別子 |
+| question | String | 質問文（例:「昼に食べたいのは？」） |
+| choices | [String] | 選択肢（3つ固定） |
+| genre | Genre | ジャンル |
+| difficulty | Difficulty | 難易度 |
+
+> お題はプレイヤーが入力するものではなく、データプールからランダムに選出される
 
 ---
 
@@ -65,7 +89,7 @@
 | id | String | 一意識別子 |
 | turnIndex | Int | ターン番号 |
 | questionerId | String | 出題者のPlayer.id |
-| topic | String | お題 |
+| topicId | String | お題のTopic.id |
 | answers | [Answer] | 回答一覧 |
 | isCompleted | Bool | このターンが完了したか |
 
