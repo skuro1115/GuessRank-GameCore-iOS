@@ -7,13 +7,14 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		BAC6D4B12F8D5A7400B1FBF6 /* sanrentan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = sanrentan.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAC6D4B12F8D5A7400B1FBF6 /* GuessRank.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GuessRank.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAC6D5552F923C6C00B1FBF6 /* GuessRank.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GuessRank.xcodeproj; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		BAC6D4B32F8D5A7400B1FBF6 /* sanrentan */ = {
+		BAC6D4B32F8D5A7400B1FBF6 /* GuessRank */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = sanrentan;
+			path = GuessRank;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,7 +33,8 @@
 		BAC6D4A82F8D5A7400B1FBF6 = {
 			isa = PBXGroup;
 			children = (
-				BAC6D4B32F8D5A7400B1FBF6 /* sanrentan */,
+				BAC6D5552F923C6C00B1FBF6 /* GuessRank.xcodeproj */,
+				BAC6D4B32F8D5A7400B1FBF6 /* GuessRank */,
 				BAC6D4B22F8D5A7400B1FBF6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -40,7 +42,7 @@
 		BAC6D4B22F8D5A7400B1FBF6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BAC6D4B12F8D5A7400B1FBF6 /* sanrentan.app */,
+				BAC6D4B12F8D5A7400B1FBF6 /* GuessRank.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +50,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		BAC6D4B02F8D5A7400B1FBF6 /* sanrentan */ = {
+		BAC6D4B02F8D5A7400B1FBF6 /* GuessRank */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = BAC6D4BC2F8D5A7500B1FBF6 /* Build configuration list for PBXNativeTarget "sanrentan" */;
+			buildConfigurationList = BAC6D4BC2F8D5A7500B1FBF6 /* Build configuration list for PBXNativeTarget "GuessRank" */;
 			buildPhases = (
 				BAC6D4AD2F8D5A7400B1FBF6 /* Sources */,
 				BAC6D4AE2F8D5A7400B1FBF6 /* Frameworks */,
@@ -61,13 +63,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				BAC6D4B32F8D5A7400B1FBF6 /* sanrentan */,
+				BAC6D4B32F8D5A7400B1FBF6 /* GuessRank */,
 			);
-			name = sanrentan;
+			name = GuessRank;
 			packageProductDependencies = (
 			);
-			productName = sanrentan;
-			productReference = BAC6D4B12F8D5A7400B1FBF6 /* sanrentan.app */;
+			productName = GuessRank;
+			productReference = BAC6D4B12F8D5A7400B1FBF6 /* GuessRank.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,7 +87,7 @@
 					};
 				};
 			};
-			buildConfigurationList = BAC6D4AC2F8D5A7400B1FBF6 /* Build configuration list for PBXProject "sanrentan" */;
+			buildConfigurationList = BAC6D4AC2F8D5A7400B1FBF6 /* Build configuration list for PBXProject "GuessRank" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -99,7 +101,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				BAC6D4B02F8D5A7400B1FBF6 /* sanrentan */,
+				BAC6D4B02F8D5A7400B1FBF6 /* GuessRank */,
 			);
 		};
 /* End PBXProject section */
@@ -263,7 +265,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = shion.sanrentan;
+				PRODUCT_BUNDLE_IDENTIFIER = shion.GuessRank;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -294,7 +296,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = shion.sanrentan;
+				PRODUCT_BUNDLE_IDENTIFIER = shion.GuessRank;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -309,7 +311,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		BAC6D4AC2F8D5A7400B1FBF6 /* Build configuration list for PBXProject "sanrentan" */ = {
+		BAC6D4AC2F8D5A7400B1FBF6 /* Build configuration list for PBXProject "GuessRank" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BAC6D4BA2F8D5A7500B1FBF6 /* Debug */,
@@ -318,7 +320,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BAC6D4BC2F8D5A7500B1FBF6 /* Build configuration list for PBXNativeTarget "sanrentan" */ = {
+		BAC6D4BC2F8D5A7500B1FBF6 /* Build configuration list for PBXNativeTarget "GuessRank" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BAC6D4BD2F8D5A7500B1FBF6 /* Debug */,

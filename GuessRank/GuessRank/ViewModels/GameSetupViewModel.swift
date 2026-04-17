@@ -3,6 +3,8 @@ import Observation
 
 @Observable
 class GameSetupViewModel {
+    static let maxNameLength = 12
+
     var genre: Genre = .random
     var difficulty: Difficulty = .normal
     var cycleCount: Int = 1
@@ -22,9 +24,10 @@ class GameSetupViewModel {
     }
 
     var canStartGame: Bool {
-        playerNames.count == playerCount
-            && playerNames.allSatisfy { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
-            && Set(playerNames.map { $0.trimmingCharacters(in: .whitespaces) }).count == playerCount
+        let trimmed = playerNames.map { sanitize($0) }
+        return trimmed.count == playerCount
+            && trimmed.allSatisfy { !$0.isEmpty }
+            && Set(trimmed).count == playerCount
     }
 
     func updatePlayerCount(_ count: Int) {
@@ -37,6 +40,14 @@ class GameSetupViewModel {
         }
     }
 
+    func sanitize(_ name: String) -> String {
+        let cleaned = name
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\n", with: "")
+            .replacingOccurrences(of: "\r", with: "")
+        return String(cleaned.prefix(Self.maxNameLength))
+    }
+
     func buildSession() -> GameSession {
         let config = GameConfig(
             genre: genre,
@@ -45,14 +56,12 @@ class GameSetupViewModel {
             playerCount: playerCount
         )
         let players = playerNames.enumerated().map { index, name in
-            Player(name: name.trimmingCharacters(in: .whitespaces), order: index)
+            Player(name: sanitize(name), order: index)
         }
         return GameSession(config: config, players: players)
     }
 
-    /// Reset config for replay, keeping player names
     func resetForReplay() {
-        // playerNames and playerCount are preserved
-        // config settings are preserved so players can adjust if needed
+        // playerNames, playerCount, config settings are preserved
     }
 }

@@ -4,6 +4,10 @@
 # Xcode build artifacts
 build/
 DerivedData/
+
+# SPM build artifacts
+.build/
+.swiftpm/
 *.xcuserstate
 xcuserdata/
 

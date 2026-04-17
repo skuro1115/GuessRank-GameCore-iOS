@@ -3,6 +3,7 @@ import SwiftUI
 enum AppScreen {
     case settings
     case game
+    case gameClear
     case end
 }
 
@@ -10,6 +11,7 @@ struct ContentView: View {
     @State private var screen: AppScreen = .settings
     @State private var setupViewModel = GameSetupViewModel()
     @State private var gameViewModel: GameProgressViewModel?
+    @State private var endSnapshot: GameSessionSnapshot?
 
     var body: some View {
         NavigationStack {
@@ -27,7 +29,10 @@ struct ContentView: View {
                         viewModel: vm,
                         isGameActive: Binding(
                             get: { screen == .game },
-                            set: { if !$0 { screen = .end } }
+                            set: { if !$0 {
+                                endSnapshot = vm.snapshot()
+                                screen = .gameClear
+                            }}
                         ),
                         onQuit: {
                             gameViewModel = nil
@@ -36,11 +41,19 @@ struct ContentView: View {
                     )
                 }
 
+            case .gameClear:
+                if let snap = endSnapshot {
+                    GameClearView(snapshot: snap) {
+                        screen = .end
+                    }
+                }
+
             case .end:
-                if let vm = gameViewModel {
-                    EndView(viewModel: vm) {
+                if let snap = endSnapshot {
+                    EndView(snapshot: snap) {
                         setupViewModel.resetForReplay()
                         gameViewModel = nil
+                        endSnapshot = nil
                         screen = .settings
                     }
                 }

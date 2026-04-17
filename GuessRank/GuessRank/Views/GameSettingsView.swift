@@ -88,6 +88,13 @@ struct GameSettingsView: View {
                                 .textFieldStyle(.roundedBorder)
                                 .focused($focusedIndex, equals: index)
                                 .submitLabel(index < viewModel.playerNames.count - 1 ? .next : .done)
+                                .onChange(of: viewModel.playerNames) {
+                                    // Enforce max length
+                                    if index < viewModel.playerNames.count,
+                                       viewModel.playerNames[index].count > GameSetupViewModel.maxNameLength {
+                                        viewModel.playerNames[index] = String(viewModel.playerNames[index].prefix(GameSetupViewModel.maxNameLength))
+                                    }
+                                }
                                 .onSubmit {
                                     if index < viewModel.playerNames.count - 1 {
                                         focusedIndex = index + 1
