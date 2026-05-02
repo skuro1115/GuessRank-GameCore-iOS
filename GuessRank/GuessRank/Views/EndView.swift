@@ -72,19 +72,23 @@ struct EndView: View {
                     }
                 }
 
-                // MARK: - Future analytics placeholder
-                VStack(spacing: 8) {
-                    Image(systemName: "chart.bar.xaxis.ascending")
-                        .font(.title)
-                        .foregroundStyle(.secondary)
-                    Text("詳しい分析は今後のアップデートで追加予定")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                // MARK: - Analytics link
+                NavigationLink {
+                    AnalyticsView(snapshot: snapshot)
+                } label: {
+                    HStack {
+                        Image(systemName: "chart.bar.xaxis.ascending")
+                            .foregroundStyle(.cyan)
+                        Text("分析を見る")
+                            .font(.headline)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding()
+                    .background(Color.cyan.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color(.systemGray6).opacity(0.5))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 // MARK: - Replay
                 Button(action: onReplay) {
