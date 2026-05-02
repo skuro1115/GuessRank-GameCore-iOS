@@ -53,8 +53,8 @@ struct RulesView: View {
                 }
 
                 // MARK: - Pass feature
-                section(icon: "arrow.uturn.right", title: "お題のパス", color: .red) {
-                    Text("遊びにくいお題は「パス」で別のお題に変更できます。\nお題画面の右下にパスボタンがあります。")
+                section(icon: "arrow.uturn.right", title: "お題を変える", color: .red) {
+                    Text("答えにくいお題や場の雰囲気に合わないお題は「お題を変える」ボタンで別のお題に変更できます。回数制限はないので、気軽に使ってください。")
                 }
             }
             .padding()

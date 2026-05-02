@@ -72,25 +72,21 @@ struct TopicView: View {
 
                 // Action buttons
                 HStack(spacing: 12) {
-                    // Pass button
-                    if viewModel.canPass {
-                        Button {
-                            viewModel.passTopic()
-                        } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "arrow.uturn.right")
-                                Text("パス")
-                                Text("(\(viewModel.passesRemaining))")
-                                    .font(.caption)
-                            }
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 14)
-                            .background(.ultraThinMaterial)
-                            .foregroundStyle(.secondary)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                    // Pass button — お題が場に合わないときのための安全弁（回数無制限）
+                    Button {
+                        viewModel.passTopic()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.uturn.right")
+                            Text("お題を変える")
                         }
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
+                        .background(.ultraThinMaterial)
+                        .foregroundStyle(.secondary)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
 
                     // Start button

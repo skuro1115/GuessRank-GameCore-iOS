@@ -3,13 +3,11 @@ import Observation
 
 @Observable
 class GameProgressViewModel {
-    static let maxPassesPerGame = 3
-
     private(set) var session: GameSession
     private(set) var inputState = TurnInputState()
     private var topics: [Topic] = []
-    private var spareTopics: [Topic] = []
-    private(set) var passesRemaining: Int = maxPassesPerGame
+    private var usedTopicIds: Set<String> = []
+    private let topicProvider: TopicProviding
 
     // MARK: - Convenience accessors
 
@@ -45,18 +43,17 @@ class GameProgressViewModel {
     // MARK: - Init
 
     var canPass: Bool {
-        passesRemaining > 0 && !spareTopics.isEmpty && phase == .showTopic
+        phase == .showTopic
     }
 
     init(session: GameSession, topicProvider: TopicProviding = TopicService()) {
         self.session = session
-        let allPicked = topicProvider.pickTopics(
-            count: session.totalTurns + Self.maxPassesPerGame,
+        self.topicProvider = topicProvider
+        self.topics = topicProvider.pickTopics(
+            count: session.totalTurns,
             genre: session.config.genre,
             difficulty: session.config.difficulty
         )
-        self.topics = Array(allPicked.prefix(session.totalTurns))
-        self.spareTopics = Array(allPicked.dropFirst(session.totalTurns))
         loadTopic()
     }
 
@@ -95,20 +92,32 @@ class GameProgressViewModel {
     }
 
     func passTopic() {
-        guard canPass, let spare = spareTopics.first else { return }
-        spareTopics.removeFirst()
-        passesRemaining -= 1
+        guard canPass else { return }
 
-        // Replace current topic and turn
+        // Mark current topic as used so it won't be picked again
+        if let current = currentTopic {
+            usedTopicIds.insert(current.id)
+        }
+
+        // Pick a fresh topic that hasn't been used
+        let allUsed = usedTopicIds.union(topics.map { $0.id })
+        let candidates = topicProvider.pickTopics(
+            count: 10,
+            genre: session.config.genre,
+            difficulty: session.config.difficulty
+        ).filter { !allUsed.contains($0.id) }
+
+        guard let replacement = candidates.first else { return }
+
         let topicIndex = session.currentTurnIndex
-        topics[topicIndex] = spare
+        topics[topicIndex] = replacement
         session.turns.removeLast()
 
-        inputState.loadTopic(spare)
+        inputState.loadTopic(replacement)
         let turn = Turn(
             turnIndex: session.currentTurnIndex,
             questionerId: session.currentQuestioner.id,
-            topic: spare
+            topic: replacement
         )
         session.turns.append(turn)
     }
