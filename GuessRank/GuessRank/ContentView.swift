@@ -5,6 +5,7 @@ enum AppScreen {
     case game
     case gameClear
     case end
+    case history
 }
 
 struct ContentView: View {
@@ -12,16 +13,19 @@ struct ContentView: View {
     @State private var setupViewModel = GameSetupViewModel()
     @State private var gameViewModel: GameProgressViewModel?
     @State private var endSnapshot: GameSessionSnapshot?
+    @State private var historyStore = GameHistoryStore()
 
     var body: some View {
         NavigationStack {
             switch screen {
             case .settings:
-                GameSettingsView(viewModel: setupViewModel) {
+                GameSettingsView(viewModel: setupViewModel, onStart: {
                     let session = setupViewModel.buildSession()
                     gameViewModel = GameProgressViewModel(session: session)
                     screen = .game
-                }
+                }, onShowHistory: {
+                    screen = .history
+                })
 
             case .game:
                 if let vm = gameViewModel {
@@ -30,7 +34,9 @@ struct ContentView: View {
                         isGameActive: Binding(
                             get: { screen == .game },
                             set: { if !$0 {
-                                endSnapshot = vm.snapshot()
+                                let snap = vm.snapshot()
+                                endSnapshot = snap
+                                historyStore.save(snap)
                                 screen = .gameClear
                             }}
                         ),
@@ -56,6 +62,11 @@ struct ContentView: View {
                         endSnapshot = nil
                         screen = .settings
                     }
+                }
+
+            case .history:
+                HistoryListView(store: historyStore) {
+                    screen = .settings
                 }
             }
         }
