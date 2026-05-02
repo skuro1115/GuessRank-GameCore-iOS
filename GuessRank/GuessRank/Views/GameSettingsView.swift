@@ -3,6 +3,7 @@ import SwiftUI
 struct GameSettingsView: View {
     @Bindable var viewModel: GameSetupViewModel
     var onStart: () -> Void
+    var onShowHistory: () -> Void
 
     @FocusState private var focusedIndex: Int?
 
@@ -130,6 +131,22 @@ struct GameSettingsView: View {
         }
         .navigationTitle("ゲーム設定")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                NavigationLink {
+                    RulesView()
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    onShowHistory()
+                } label: {
+                    Image(systemName: "clock.arrow.circlepath")
+                }
+            }
+        }
         .onTapGesture {
             focusedIndex = nil
         }

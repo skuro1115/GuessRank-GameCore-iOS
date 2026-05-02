@@ -3,9 +3,13 @@ import Observation
 
 @Observable
 class GameProgressViewModel {
+    static let maxPassesPerGame = 3
+
     private(set) var session: GameSession
     private(set) var inputState = TurnInputState()
     private var topics: [Topic] = []
+    private var spareTopics: [Topic] = []
+    private(set) var passesRemaining: Int = maxPassesPerGame
 
     // MARK: - Convenience accessors
 
@@ -40,13 +44,19 @@ class GameProgressViewModel {
 
     // MARK: - Init
 
+    var canPass: Bool {
+        passesRemaining > 0 && !spareTopics.isEmpty && phase == .showTopic
+    }
+
     init(session: GameSession, topicProvider: TopicProviding = TopicService()) {
         self.session = session
-        self.topics = topicProvider.pickTopics(
-            count: session.totalTurns,
+        let allPicked = topicProvider.pickTopics(
+            count: session.totalTurns + Self.maxPassesPerGame,
             genre: session.config.genre,
             difficulty: session.config.difficulty
         )
+        self.topics = Array(allPicked.prefix(session.totalTurns))
+        self.spareTopics = Array(allPicked.dropFirst(session.totalTurns))
         loadTopic()
     }
 
@@ -82,6 +92,25 @@ class GameProgressViewModel {
         if case .showResult = phase {
             GameEngine.completeTurn(session: &session)
         }
+    }
+
+    func passTopic() {
+        guard canPass, let spare = spareTopics.first else { return }
+        spareTopics.removeFirst()
+        passesRemaining -= 1
+
+        // Replace current topic and turn
+        let topicIndex = session.currentTurnIndex
+        topics[topicIndex] = spare
+        session.turns.removeLast()
+
+        inputState.loadTopic(spare)
+        let turn = Turn(
+            turnIndex: session.currentTurnIndex,
+            questionerId: session.currentQuestioner.id,
+            topic: spare
+        )
+        session.turns.append(turn)
     }
 
     func advanceToNextTurn() {

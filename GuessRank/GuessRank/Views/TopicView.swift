@@ -70,20 +70,45 @@ struct TopicView: View {
 
                 Spacer()
 
-                Button {
-                    viewModel.startQuestionerInput()
-                } label: {
-                    HStack {
-                        Image(systemName: "hand.tap.fill")
-                        Text("\(viewModel.questioner.name) が順位を決める")
+                // Action buttons
+                HStack(spacing: 12) {
+                    // Pass button
+                    if viewModel.canPass {
+                        Button {
+                            viewModel.passTopic()
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.uturn.right")
+                                Text("パス")
+                                Text("(\(viewModel.passesRemaining))")
+                                    .font(.caption)
+                            }
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 14)
+                            .background(.ultraThinMaterial)
+                            .foregroundStyle(.secondary)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                        }
                     }
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.orange)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .shadow(color: .orange.opacity(0.3), radius: 8, y: 4)
+
+                    // Start button
+                    Button {
+                        viewModel.startQuestionerInput()
+                    } label: {
+                        HStack {
+                            Image(systemName: "hand.tap.fill")
+                            Text("\(viewModel.questioner.name) が順位を決める")
+                        }
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.orange)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .shadow(color: .orange.opacity(0.3), radius: 8, y: 4)
+                    }
                 }
             }
             .padding()

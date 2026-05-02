@@ -179,6 +179,45 @@ final class GameProgressViewModelTests: XCTestCase {
         XCTAssertEqual(sorted.first?.score, 100)
     }
 
+    // MARK: - Pass topic
+
+    func test_passTopicでお題が変わる() {
+        let vm = makeViewModel(playerNames: ["A", "B", "C"])
+        let originalQuestion = vm.currentTopic?.question
+
+        vm.passTopic()
+
+        XCTAssertNotEqual(vm.currentTopic?.question, originalQuestion, "パス後はお題が変わるべき")
+        XCTAssertEqual(vm.phase, .showTopic, "パス後もshowTopicフェーズ")
+    }
+
+    func test_passTopicで残回数が減る() {
+        let vm = makeViewModel(playerNames: ["A", "B", "C"])
+        let before = vm.passesRemaining
+
+        vm.passTopic()
+
+        XCTAssertEqual(vm.passesRemaining, before - 1)
+    }
+
+    func test_パス回数上限に達するとcanPassがfalse() {
+        let vm = makeViewModel(playerNames: ["A", "B", "C"])
+
+        for _ in 0..<GameProgressViewModel.maxPassesPerGame {
+            XCTAssertTrue(vm.canPass)
+            vm.passTopic()
+        }
+
+        XCTAssertFalse(vm.canPass, "パス上限到達後はfalse")
+    }
+
+    func test_showTopic以外のフェーズではcanPassがfalse() {
+        let vm = makeViewModel(playerNames: ["A", "B", "C"])
+        vm.startQuestionerInput()
+
+        XCTAssertFalse(vm.canPass, "rankingInputフェーズではパス不可")
+    }
+
     // MARK: - Helpers
 
     private func makeViewModel(
