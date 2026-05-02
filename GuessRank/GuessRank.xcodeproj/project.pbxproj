@@ -47,6 +47,11 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		BAC6D5942F98B11100B1FBF6 /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -99,6 +104,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BAC6D4B22F8D5A7400B1FBF6 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = BAC6D5942F98B11100B1FBF6 /* Products */;
+					ProjectRef = BAC6D5552F923C6C00B1FBF6 /* GuessRank.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				BAC6D4B02F8D5A7400B1FBF6 /* GuessRank */,
@@ -253,6 +264,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YFGZ4GH8S6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -284,6 +296,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YFGZ4GH8S6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
