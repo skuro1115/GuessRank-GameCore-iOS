@@ -9,7 +9,7 @@ final class AnalyticsServiceTests: XCTestCase {
 
         // Turn 0: A が出題、B=100点(完全一致)、C=20点
         let turn0 = Turn(
-            turnIndex: 0, questionerId: "p0", topic: topic,
+            turnIndex: 0, targetPlayerId: "p0", topic: topic,
             correctRanking: topic.choices,
             answers: [
                 Answer(playerId: "p1", ranking: topic.choices, score: 100),
@@ -20,7 +20,7 @@ final class AnalyticsServiceTests: XCTestCase {
 
         // Turn 1: B が出題、A=50点、C=0点
         let turn1 = Turn(
-            turnIndex: 1, questionerId: "p1", topic: topic,
+            turnIndex: 1, targetPlayerId: "p1", topic: topic,
             correctRanking: topic.choices,
             answers: [
                 Answer(playerId: "p0", ranking: topic.choices, score: 50),
@@ -40,19 +40,19 @@ final class AnalyticsServiceTests: XCTestCase {
         let pairs = AnalyticsService.pairwiseScores(snapshot: snapshot)
 
         // B→A (B が A の出題時に 100 点)
-        let bToA = pairs.first { $0.fromPlayer.id == "p1" && $0.toPlayer.id == "p0" }
+        let bToA = pairs.first { $0.guesser.id == "p1" && $0.target.id == "p0" }
         XCTAssertEqual(bToA?.averageScore, 100)
 
         // A→B (A が B の出題時に 50 点)
-        let aToB = pairs.first { $0.fromPlayer.id == "p0" && $0.toPlayer.id == "p1" }
+        let aToB = pairs.first { $0.guesser.id == "p0" && $0.target.id == "p1" }
         XCTAssertEqual(aToB?.averageScore, 50)
 
         // C→A (C が A の出題時に 20 点)
-        let cToA = pairs.first { $0.fromPlayer.id == "p2" && $0.toPlayer.id == "p0" }
+        let cToA = pairs.first { $0.guesser.id == "p2" && $0.target.id == "p0" }
         XCTAssertEqual(cToA?.averageScore, 20)
 
         // C→B (C が B の出題時に 0 点)
-        let cToB = pairs.first { $0.fromPlayer.id == "p2" && $0.toPlayer.id == "p1" }
+        let cToB = pairs.first { $0.guesser.id == "p2" && $0.target.id == "p1" }
         XCTAssertEqual(cToB?.averageScore, 0)
     }
 
@@ -93,7 +93,7 @@ final class AnalyticsServiceTests: XCTestCase {
 
     // MARK: - Predictability
 
-    func test_predictabilityは出題者としての被予測平均を返す() {
+    func test_predictabilityはターゲットとしての被予測平均を返す() {
         let snapshot = makeSnapshot()
         let results = AnalyticsService.predictability(snapshot: snapshot)
 

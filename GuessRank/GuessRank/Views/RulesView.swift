@@ -6,15 +6,15 @@ struct RulesView: View {
             VStack(alignment: .leading, spacing: 24) {
                 // MARK: - Goal
                 section(icon: "target", title: "ゲームの目的", color: .orange) {
-                    Text("出題者の「好みの順位」を当てるゲームです。\n友達の価値観をどれだけ理解しているかを競います。")
+                    Text("ターゲットの「好みの順位」を当てるゲームです。\n友達の価値観をどれだけ理解しているかを競います。")
                 }
 
                 // MARK: - Turn flow
                 section(icon: "arrow.trianglehead.2.counterclockwise", title: "1ターンの流れ", color: .cyan) {
                     VStack(alignment: .leading, spacing: 12) {
                         flowStep(number: 1, text: "お題が表示される（全員で確認）")
-                        flowStep(number: 2, text: "出題者が自分の好みの順位を決める")
-                        flowStep(number: 3, text: "回答者が出題者の順位を予想する")
+                        flowStep(number: 2, text: "ターゲットが自分の好みの順位を決める")
+                        flowStep(number: 3, text: "予想者がターゲットの順位を予想する")
                         flowStep(number: 4, text: "結果発表！")
                     }
                 }
@@ -22,8 +22,8 @@ struct RulesView: View {
                 // MARK: - Roles
                 section(icon: "person.2.fill", title: "役割", color: .green) {
                     VStack(alignment: .leading, spacing: 8) {
-                        roleRow(icon: "crown.fill", role: "出題者", desc: "お題に対して自分の好みの1位〜3位を決めます", color: .orange)
-                        roleRow(icon: "person.fill.questionmark", role: "回答者", desc: "出題者がどの順番で好きかを予想します", color: .cyan)
+                        roleRow(icon: "crown.fill", role: "ターゲット", desc: "お題に対して自分の好みの1位〜3位を決めます", color: .orange)
+                        roleRow(icon: "person.fill.questionmark", role: "予想者", desc: "ターゲットがどの順番で好きかを予想します", color: .cyan)
                     }
                 }
 

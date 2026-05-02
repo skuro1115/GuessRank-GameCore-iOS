@@ -25,13 +25,13 @@ struct GameSession: Codable {
         self.turns = []
     }
 
-    var currentQuestioner: Player {
+    var currentTargetPlayer: Player {
         let index = currentTurnIndex % players.count
         return players[index]
     }
 
-    var respondents: [Player] {
-        players.filter { $0.id != currentQuestioner.id }
+    var guessingPlayers: [Player] {
+        players.filter { $0.id != currentTargetPlayer.id }
     }
 
     var isLastTurn: Bool {

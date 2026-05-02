@@ -67,15 +67,15 @@ struct AnalyticsView: View {
                 }
 
                 // Data rows
-                ForEach(players) { respondent in
+                ForEach(players) { guesser in
                     GridRow {
-                        Text(String(respondent.name.prefix(4)))
+                        Text(String(guesser.name.prefix(4)))
                             .font(.caption)
                             .fontWeight(.bold)
                             .frame(width: 50)
 
-                        ForEach(players) { questioner in
-                            if respondent.id == questioner.id {
+                        ForEach(players) { target in
+                            if guesser.id == target.id {
                                 Text("-")
                                     .font(.caption)
                                     .frame(width: 50, height: 36)
@@ -83,7 +83,7 @@ struct AnalyticsView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 4))
                             } else {
                                 let score = pairs.first {
-                                    $0.fromPlayer.id == respondent.id && $0.toPlayer.id == questioner.id
+                                    $0.guesser.id == guesser.id && $0.target.id == target.id
                                 }?.averageScore ?? 0
                                 Text("\(Int(score))")
                                     .font(.caption)
@@ -97,7 +97,7 @@ struct AnalyticsView: View {
                 }
             }
 
-            Text("行: 回答者 → 列: 出題者 への平均スコア")
+            Text("行: 予想者 → 列: ターゲット への平均スコア")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }

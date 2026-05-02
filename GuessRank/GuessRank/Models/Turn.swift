@@ -3,7 +3,7 @@ import Foundation
 struct Turn: Identifiable, Codable {
     let id: String
     let turnIndex: Int
-    let questionerId: String
+    let targetPlayerId: String
     let topic: Topic
     var correctRanking: [String]
     var answers: [Answer]
@@ -12,7 +12,7 @@ struct Turn: Identifiable, Codable {
     init(
         id: String = UUID().uuidString,
         turnIndex: Int,
-        questionerId: String,
+        targetPlayerId: String,
         topic: Topic,
         correctRanking: [String] = [],
         answers: [Answer] = [],
@@ -20,7 +20,7 @@ struct Turn: Identifiable, Codable {
     ) {
         self.id = id
         self.turnIndex = turnIndex
-        self.questionerId = questionerId
+        self.targetPlayerId = targetPlayerId
         self.topic = topic
         self.correctRanking = correctRanking
         self.answers = answers

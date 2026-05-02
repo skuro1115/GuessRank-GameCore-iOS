@@ -2,7 +2,7 @@ import XCTest
 @testable import GuessRankCore
 
 /// Golden path tests for GameProgressViewModel.
-/// Validates full turn flow: showTopic → questioner input → respondent inputs → showResult → next turn.
+/// Validates full turn flow: showTopic → questioner input → guesser inputs → showResult → next turn.
 final class GameProgressViewModelTests: XCTestCase {
     // MARK: - Initial state
 
@@ -24,15 +24,15 @@ final class GameProgressViewModelTests: XCTestCase {
 
     func test_初期questionerは1人目() {
         let vm = makeViewModel(playerNames: ["A", "B", "C"])
-        XCTAssertEqual(vm.questioner.name, "A")
-        XCTAssertEqual(vm.respondents.map { $0.name }, ["B", "C"])
+        XCTAssertEqual(vm.targetPlayer.name, "A")
+        XCTAssertEqual(vm.guessingPlayers.map { $0.name }, ["B", "C"])
     }
 
     // MARK: - Phase transitions
 
-    func test_startQuestionerInputで出題者入力フェーズに遷移() {
+    func test_startTargetInputでターゲット入力フェーズに遷移() {
         let vm = makeViewModel(playerNames: ["A", "B", "C"])
-        vm.startQuestionerInput()
+        vm.startTargetInput()
 
         if case .rankingInput(let index, let covered) = vm.phase {
             XCTAssertEqual(index, 0)
@@ -41,12 +41,12 @@ final class GameProgressViewModelTests: XCTestCase {
             XCTFail("rankingInput(0, true) であるべき")
         }
         XCTAssertEqual(vm.currentInputPlayer?.name, "A")
-        XCTAssertTrue(vm.isQuestionerInput)
+        XCTAssertTrue(vm.isTargetInput)
     }
 
     func test_uncoverInputでカバーが外れる() {
         let vm = makeViewModel(playerNames: ["A", "B", "C"])
-        vm.startQuestionerInput()
+        vm.startTargetInput()
         vm.uncoverInput()
 
         if case .rankingInput(let index, let covered) = vm.phase {
@@ -57,9 +57,9 @@ final class GameProgressViewModelTests: XCTestCase {
         }
     }
 
-    func test_startQuestionerInputでrankingInputがchoicesで初期化() {
+    func test_startTargetInputでrankingInputがchoicesで初期化() {
         let vm = makeViewModel(playerNames: ["A", "B", "C"])
-        vm.startQuestionerInput()
+        vm.startTargetInput()
 
         XCTAssertEqual(vm.rankingInput.count, 3)
         XCTAssertEqual(vm.rankingInput, vm.currentTopic?.choices)
@@ -72,34 +72,34 @@ final class GameProgressViewModelTests: XCTestCase {
         let topic = try XCTUnwrap(vm.currentTopic)
         let correctRanking = topic.choices // A は選択肢の順番そのままで設定
 
-        // 1. 出題者入力開始 → uncover → submit
-        vm.startQuestionerInput()
+        // 1. ターゲット入力開始 → uncover → submit
+        vm.startTargetInput()
         vm.uncoverInput()
         vm.rankingInput = correctRanking
         vm.submitRanking()
 
-        // 次は回答者B
+        // 次は予想者B
         guard case .rankingInput(let bIndex, let bCovered) = vm.phase else {
             return XCTFail("rankingInput(1, true) であるべき")
         }
         XCTAssertEqual(bIndex, 1)
         XCTAssertTrue(bCovered)
         XCTAssertEqual(vm.currentInputPlayer?.name, "B")
-        XCTAssertFalse(vm.isQuestionerInput)
+        XCTAssertFalse(vm.isTargetInput)
 
-        // 2. 回答者B: uncover → 完全一致で submit
+        // 2. 予想者B: uncover → 完全一致で submit
         vm.uncoverInput()
         vm.rankingInput = correctRanking
         vm.submitRanking()
 
-        // 次は回答者C
+        // 次は予想者C
         guard case .rankingInput(let cIndex, _) = vm.phase else {
             return XCTFail("rankingInput(2, true) であるべき")
         }
         XCTAssertEqual(cIndex, 2)
         XCTAssertEqual(vm.currentInputPlayer?.name, "C")
 
-        // 3. 回答者C: uncover → 完全に外れて submit
+        // 3. 予想者C: uncover → 完全に外れて submit
         vm.uncoverInput()
         vm.rankingInput = [correctRanking[1], correctRanking[2], correctRanking[0]] // 全ずれ
         vm.submitRanking()
@@ -135,7 +135,7 @@ final class GameProgressViewModelTests: XCTestCase {
 
         XCTAssertEqual(vm.phase, .showTopic)
         XCTAssertEqual(vm.session.currentTurnIndex, 1)
-        XCTAssertEqual(vm.questioner.name, "B")
+        XCTAssertEqual(vm.targetPlayer.name, "B")
     }
 
     func test_最終ターン完了でcompletedに遷移() {
@@ -154,12 +154,12 @@ final class GameProgressViewModelTests: XCTestCase {
     }
 
     func test_sortedResultsはスコア降順() {
-        // B=完全一致(100点), C=全外れ(0点) で1ターン完走 → A=出題者(0点)
+        // B=完全一致(100点), C=全外れ(0点) で1ターン完走 → A=ターゲット(0点)
         let vm = makeViewModel(playerNames: ["A", "B", "C"])
         guard let topic = vm.currentTopic else { return XCTFail("topic がない") }
         let correct = topic.choices
 
-        vm.startQuestionerInput()
+        vm.startTargetInput()
         vm.uncoverInput()
         vm.rankingInput = correct
         vm.submitRanking()
@@ -203,7 +203,7 @@ final class GameProgressViewModelTests: XCTestCase {
 
     func test_showTopic以外のフェーズではcanPassがfalse() {
         let vm = makeViewModel(playerNames: ["A", "B", "C"])
-        vm.startQuestionerInput()
+        vm.startTargetInput()
 
         XCTAssertFalse(vm.canPass, "rankingInputフェーズではパス不可")
     }
@@ -228,14 +228,14 @@ final class GameProgressViewModelTests: XCTestCase {
         guard let topic = vm.currentTopic else { return }
         let correctRanking = topic.choices
 
-        // 出題者入力
-        vm.startQuestionerInput()
+        // ターゲット入力
+        vm.startTargetInput()
         vm.uncoverInput()
         vm.rankingInput = correctRanking
         vm.submitRanking()
 
-        // 全回答者入力
-        for _ in vm.respondents {
+        // 全予想者入力
+        for _ in vm.guessingPlayers {
             vm.uncoverInput()
             if correctAnswer {
                 vm.rankingInput = correctRanking

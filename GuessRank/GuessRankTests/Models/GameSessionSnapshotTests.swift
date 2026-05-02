@@ -26,7 +26,7 @@ final class GameSessionSnapshotTests: XCTestCase {
         let topic = Fixtures.topic()
         var session = Fixtures.session(playerNames: ["A", "B"])
         let turn1 = Turn(
-            turnIndex: 0, questionerId: "p0", topic: topic,
+            turnIndex: 0, targetPlayerId: "p0", topic: topic,
             correctRanking: ["寿司", "ラーメン", "カレー"],
             answers: [
                 Answer(playerId: "p1", ranking: ["寿司", "ラーメン", "カレー"], score: 100),
@@ -34,7 +34,7 @@ final class GameSessionSnapshotTests: XCTestCase {
             isCompleted: true
         )
         let turn2 = Turn(
-            turnIndex: 1, questionerId: "p1", topic: topic,
+            turnIndex: 1, targetPlayerId: "p1", topic: topic,
             correctRanking: ["寿司", "ラーメン", "カレー"],
             answers: [
                 Answer(playerId: "p0", ranking: ["寿司", "ラーメン", "カレー"], score: 100),
@@ -52,13 +52,13 @@ final class GameSessionSnapshotTests: XCTestCase {
         let topic = Fixtures.topic()
         var session = Fixtures.session(playerNames: ["A", "B"])
         let turn0 = Turn(
-            turnIndex: 0, questionerId: "p0", topic: topic,
+            turnIndex: 0, targetPlayerId: "p0", topic: topic,
             correctRanking: topic.choices,
             answers: [Answer(playerId: "p1", ranking: topic.choices, score: 50)],
             isCompleted: true
         )
         let turn1 = Turn(
-            turnIndex: 1, questionerId: "p1", topic: topic,
+            turnIndex: 1, targetPlayerId: "p1", topic: topic,
             correctRanking: topic.choices,
             answers: [Answer(playerId: "p0", ranking: topic.choices, score: 100)],
             isCompleted: true
@@ -78,7 +78,7 @@ final class GameSessionSnapshotTests: XCTestCase {
         let topic = Fixtures.topic()
         var session = Fixtures.session(playerNames: ["A", "B", "C"])
         let turn = Turn(
-            turnIndex: 0, questionerId: "p0", topic: topic,
+            turnIndex: 0, targetPlayerId: "p0", topic: topic,
             correctRanking: topic.choices,
             answers: [
                 Answer(playerId: "p1", ranking: topic.choices, score: 100),

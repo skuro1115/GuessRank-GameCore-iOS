@@ -88,7 +88,7 @@
 |---|---|---|
 | id | String | 一意識別子 |
 | turnIndex | Int | ターン番号 |
-| questionerId | String | 出題者のPlayer.id |
+| targetPlayerId | String | ターゲットのPlayer.id |
 | topicId | String | お題のTopic.id |
 | answers | [Answer] | 回答一覧 |
 | isCompleted | Bool | このターンが完了したか |
@@ -99,7 +99,7 @@
 
 | プロパティ | 型 | 説明 |
 |---|---|---|
-| playerId | String | 回答者のPlayer.id |
+| playerId | String | 予想者のPlayer.id |
 | ranking | [String] | 順位予想（アイテムの並び順） |
 | score | Int | このターンで獲得したスコア |
 
@@ -122,7 +122,7 @@ setup → inProgress → completed
 > 詳細なスコアロジックは [features/game_progress/spec.md](features/game_progress/spec.md) を参照
 
 基本方針:
-- 出題者が設定した正解順位と回答者の予想の一致度でスコアを決定
+- ターゲットが設定した正解順位と予想者の予想の一致度でスコアを決定
 - 完全一致で最高得点、部分一致で部分点
 
 ---

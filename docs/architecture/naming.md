@@ -29,7 +29,7 @@
 | bool は is / has 接頭辞 | `isCompleted`, `hasAnswered` |
 | コレクションは複数形 | `players`, `turns`, `answers` |
 | 数量は count / total 接頭辞 | `cycleCount`, `totalTurns` |
-| ID は id 接尾辞 | `playerId`, `questionerId` |
+| ID は id 接尾辞 | `playerId`, `targetPlayerId` |
 
 ## ディレクトリ・機能命名
 

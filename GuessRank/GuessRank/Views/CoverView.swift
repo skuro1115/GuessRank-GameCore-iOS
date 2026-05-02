@@ -6,7 +6,7 @@ struct CoverView: View {
 
     var body: some View {
         ZStack {
-            (viewModel.isQuestionerInput
+            (viewModel.isTargetInput
                 ? Color.orange.opacity(0.10)
                 : Color.cyan.opacity(0.10))
                 .ignoresSafeArea()
@@ -15,20 +15,20 @@ struct CoverView: View {
                 Spacer()
 
                 // Icon
-                Image(systemName: viewModel.isQuestionerInput
+                Image(systemName: viewModel.isTargetInput
                     ? "crown.fill" : "person.fill.questionmark")
                     .font(.system(size: 48))
-                    .foregroundStyle(viewModel.isQuestionerInput ? .orange : .cyan)
+                    .foregroundStyle(viewModel.isTargetInput ? .orange : .cyan)
                     .padding(.bottom, 8)
 
                 // Role badge
-                Text(viewModel.isQuestionerInput ? "出題者" : "回答者")
+                Text(viewModel.isTargetInput ? "ターゲット" : "予想者")
                     .font(.caption)
                     .fontWeight(.bold)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 6)
                     .background(
-                        (viewModel.isQuestionerInput ? Color.orange : Color.cyan).opacity(0.15)
+                        (viewModel.isTargetInput ? Color.orange : Color.cyan).opacity(0.15)
                     )
                     .clipShape(Capsule())
 
@@ -36,12 +36,12 @@ struct CoverView: View {
                     Text(player.name)
                         .font(.system(size: 40, weight: .bold))
 
-                    if viewModel.isQuestionerInput {
+                    if viewModel.isTargetInput {
                         Text("自分の好みの順位を決めてください")
                             .font(.body)
                             .foregroundStyle(.secondary)
                     } else {
-                        Text("\(viewModel.questioner.name) の好みを予想しよう")
+                        Text("\(viewModel.targetPlayer.name) の好みを予想しよう")
                             .font(.body)
                             .foregroundStyle(.secondary)
                     }
@@ -56,11 +56,11 @@ struct CoverView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(viewModel.isQuestionerInput ? Color.orange : Color.cyan)
+                        .background(viewModel.isTargetInput ? Color.orange : Color.cyan)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .shadow(
-                            color: (viewModel.isQuestionerInput ? Color.orange : Color.cyan).opacity(0.3),
+                            color: (viewModel.isTargetInput ? Color.orange : Color.cyan).opacity(0.3),
                             radius: 8, y: 4
                         )
                 }

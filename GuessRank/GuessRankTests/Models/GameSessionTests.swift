@@ -18,41 +18,41 @@ final class GameSessionTests: XCTestCase {
         XCTAssertEqual(session.totalTurns, 6)
     }
 
-    func test_currentQuestionerは0番目プレイヤー() {
+    func test_currentTargetPlayerは0番目プレイヤー() {
         let session = Fixtures.session(playerNames: ["A", "B", "C"])
-        XCTAssertEqual(session.currentQuestioner.name, "A")
+        XCTAssertEqual(session.currentTargetPlayer.name, "A")
     }
 
-    func test_currentQuestionerは順番にローテーション() {
+    func test_currentTargetPlayerは順番にローテーション() {
         var session = Fixtures.session(playerNames: ["A", "B", "C"])
 
         // Turn 0: A
-        XCTAssertEqual(session.currentQuestioner.name, "A")
+        XCTAssertEqual(session.currentTargetPlayer.name, "A")
 
         // Turn 1: B
         session.currentTurnIndex = 1
-        XCTAssertEqual(session.currentQuestioner.name, "B")
+        XCTAssertEqual(session.currentTargetPlayer.name, "B")
 
         // Turn 2: C
         session.currentTurnIndex = 2
-        XCTAssertEqual(session.currentQuestioner.name, "C")
+        XCTAssertEqual(session.currentTargetPlayer.name, "C")
 
         // Turn 3: A (2巡目の最初)
         session.currentTurnIndex = 3
-        XCTAssertEqual(session.currentQuestioner.name, "A")
+        XCTAssertEqual(session.currentTargetPlayer.name, "A")
     }
 
-    func test_respondentsは出題者を除く全員() {
+    func test_guessingPlayersはターゲットを除く全員() {
         let session = Fixtures.session(playerNames: ["A", "B", "C"])
-        let respondentNames = session.respondents.map { $0.name }
-        XCTAssertEqual(respondentNames, ["B", "C"])
+        let guesserNames = session.guessingPlayers.map { $0.name }
+        XCTAssertEqual(guesserNames, ["B", "C"])
     }
 
-    func test_respondentsはローテーションで正しく変わる() {
+    func test_guessingPlayersはローテーションで正しく変わる() {
         var session = Fixtures.session(playerNames: ["A", "B", "C"])
         session.currentTurnIndex = 1
-        let respondentNames = session.respondents.map { $0.name }
-        XCTAssertEqual(respondentNames, ["A", "C"])
+        let guesserNames = session.guessingPlayers.map { $0.name }
+        XCTAssertEqual(guesserNames, ["A", "C"])
     }
 
     func test_isLastTurnは最終ターンインデックスでtrue() {

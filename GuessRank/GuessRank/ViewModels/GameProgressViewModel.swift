@@ -18,8 +18,8 @@ class GameProgressViewModel {
         set { inputState.rankingInput = newValue }
     }
 
-    var questioner: Player { session.currentQuestioner }
-    var respondents: [Player] { session.respondents }
+    var targetPlayer: Player { session.currentTargetPlayer }
+    var guessingPlayers: [Player] { session.guessingPlayers }
     var turnLabel: String { "ターン \(session.currentTurnIndex + 1) / \(session.totalTurns)" }
     var isLastTurn: Bool { session.isLastTurn }
 
@@ -28,11 +28,11 @@ class GameProgressViewModel {
         case .showTopic, .showResult:
             nil
         case .rankingInput(let playerIndex, _):
-            playerIndex == 0 ? questioner : respondents[playerIndex - 1]
+            playerIndex == 0 ? targetPlayer : guessingPlayers[playerIndex - 1]
         }
     }
 
-    var isQuestionerInput: Bool {
+    var isTargetInput: Bool {
         if case .rankingInput(0, _) = phase { return true }
         return false
     }
@@ -57,10 +57,10 @@ class GameProgressViewModel {
         loadTopic()
     }
 
-    // MARK: - Actions (delegate to InputState / GameEngine)
+    // MARK: - Actions
 
-    func startQuestionerInput() {
-        inputState.startQuestionerInput()
+    func startTargetInput() {
+        inputState.startTargetInput()
     }
 
     func uncoverInput() {
@@ -71,19 +71,19 @@ class GameProgressViewModel {
         guard case .rankingInput(let playerIndex, false) = phase else { return }
 
         if playerIndex == 0 {
-            GameEngine.applyQuestionerRanking(ranking: rankingInput, to: &session)
+            GameEngine.applyTargetRanking(ranking: rankingInput, to: &session)
         } else {
-            let respondent = respondents[playerIndex - 1]
-            _ = GameEngine.applyRespondentAnswer(
+            let guesser = guessingPlayers[playerIndex - 1]
+            _ = GameEngine.applyGuesserAnswer(
                 ranking: rankingInput,
-                respondent: respondent,
+                guesser: guesser,
                 session: &session
             )
         }
 
         inputState.moveToNextInput(
             afterPlayerIndex: playerIndex,
-            respondentCount: respondents.count
+            guesserCount: guessingPlayers.count
         )
 
         if case .showResult = phase {
@@ -94,12 +94,10 @@ class GameProgressViewModel {
     func passTopic() {
         guard canPass else { return }
 
-        // Mark current topic as used so it won't be picked again
         if let current = currentTopic {
             usedTopicIds.insert(current.id)
         }
 
-        // Pick a fresh topic that hasn't been used
         let allUsed = usedTopicIds.union(topics.map { $0.id })
         let candidates = topicProvider.pickTopics(
             count: 10,
@@ -116,7 +114,7 @@ class GameProgressViewModel {
         inputState.loadTopic(replacement)
         let turn = Turn(
             turnIndex: session.currentTurnIndex,
-            questionerId: session.currentQuestioner.id,
+            targetPlayerId: session.currentTargetPlayer.id,
             topic: replacement
         )
         session.turns.append(turn)
@@ -144,7 +142,7 @@ class GameProgressViewModel {
 
         let turn = Turn(
             turnIndex: session.currentTurnIndex,
-            questionerId: session.currentQuestioner.id,
+            targetPlayerId: session.currentTargetPlayer.id,
             topic: topic
         )
         session.turns.append(turn)

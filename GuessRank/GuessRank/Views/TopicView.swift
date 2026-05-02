@@ -29,7 +29,7 @@ struct TopicView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "person.fill")
                         .foregroundStyle(.orange)
-                    Text("出題者: \(viewModel.questioner.name)")
+                    Text("ターゲット: \(viewModel.targetPlayer.name)")
                         .font(.title3)
                         .fontWeight(.semibold)
                 }
@@ -91,11 +91,11 @@ struct TopicView: View {
 
                     // Start button
                     Button {
-                        viewModel.startQuestionerInput()
+                        viewModel.startTargetInput()
                     } label: {
                         HStack {
                             Image(systemName: "hand.tap.fill")
-                            Text("\(viewModel.questioner.name) が順位を決める")
+                            Text("\(viewModel.targetPlayer.name) が好みの順位を決める")
                         }
                         .font(.headline)
                         .frame(maxWidth: .infinity)

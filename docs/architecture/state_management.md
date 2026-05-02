@@ -40,7 +40,7 @@ enum TurnPhase {
 
 | 値 | 説明 |
 |---|---|
-| showQuestioner | 出題者表示 |
+| showQuestioner | ターゲット表示 |
 | showTopic | お題表示 |
 | collectAnswers | 回答収集中（端末回し） |
 | showResult | ターン結果表示 |
@@ -52,7 +52,7 @@ enum TurnPhase {
                                     ↓
                               [ゲーム開始]
                                     ↓
-                            ┌─ [出題者表示] ←──────┐
+                            ┌─ [ターゲット表示] ←──────┐
                             ↓                      │
                         [お題表示]                  │
                             ↓                      │
@@ -98,4 +98,4 @@ enum TurnPhase {
 |---|---|---|
 | isCurrentPlayer | bool | 現在の操作対象か |
 | hasAnswered | bool | 今ターンで入力済みか |
-| isQuestioner | bool | 今ターンの出題者か |
+| isQuestioner | bool | 今ターンのターゲットか |

@@ -12,7 +12,7 @@ class TurnInputState {
         phase = .showTopic
     }
 
-    func startQuestionerInput() {
+    func startTargetInput() {
         guard let topic = currentTopic else { return }
         rankingInput = topic.choices
         phase = .rankingInput(playerIndex: 0, isCovered: true)
@@ -24,9 +24,9 @@ class TurnInputState {
         }
     }
 
-    func moveToNextInput(afterPlayerIndex current: Int, respondentCount: Int) {
+    func moveToNextInput(afterPlayerIndex current: Int, guesserCount: Int) {
         let nextPlayerIndex = current + 1
-        let totalInputPlayers = 1 + respondentCount
+        let totalInputPlayers = 1 + guesserCount
 
         if nextPlayerIndex < totalInputPlayers {
             guard let topic = currentTopic else { return }
