@@ -46,7 +46,11 @@ struct RankingInputView: View {
                         .clipShape(Capsule())
                 }
 
-                RankingEditor(items: $viewModel.rankingInput, accentColor: accentColor)
+                RankingEditor(
+                    items: $viewModel.rankingInput,
+                    accentColor: accentColor,
+                    originalChoices: viewModel.currentTopic?.choices ?? []
+                )
 
                 Spacer()
 

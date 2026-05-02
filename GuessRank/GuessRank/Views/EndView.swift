@@ -1,111 +1,115 @@
 import SwiftUI
 
-/// ファイナルリザルト — 最終順位 + 個人統計。将来の分析可視化の拡張ポイント。
+/// ファイナルリザルト — 人数に応じて余白を自動調整し1画面に収める
 struct EndView: View {
     let snapshot: GameSessionSnapshot
     var onReplay: () -> Void
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                // MARK: - Final ranking
-                VStack(spacing: 12) {
-                    Text("最終順位")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
+        VStack(spacing: 0) {
+            // MARK: - Ranking with inline stats
+            VStack(spacing: 8) {
+                ForEach(Array(snapshot.sortedResults.enumerated()), id: \.element.id) { index, player in
+                    let perfects = snapshot.perfectMatchCount(for: player.id)
+                    let best = snapshot.bestTurn(for: player.id)
 
-                    ForEach(Array(snapshot.sortedResults.enumerated()), id: \.element.id) { index, player in
-                        HStack {
+                    VStack(spacing: 5) {
+                        HStack(spacing: 10) {
                             Text(rankLabel(index + 1))
                                 .font(.title2)
-                                .frame(width: 50)
+                                .frame(width: 36)
 
                             Text(player.name)
-                                .font(.title3)
-                                .fontWeight(index == 0 ? .bold : .regular)
+                                .font(.body)
+                                .fontWeight(index == 0 ? .bold : .medium)
 
                             Spacer()
 
                             Text("\(player.score)点")
-                                .font(.title3)
+                                .font(.title2)
                                 .fontWeight(.bold)
                         }
-                        .padding()
-                        .background(index == 0 ? Color.orange.opacity(0.15) : Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                }
 
-                // MARK: - Per-player stats
-                VStack(spacing: 12) {
-                    Text("個人統計")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
+                        HStack(spacing: 12) {
+                            Spacer().frame(width: 36)
 
-                    ForEach(snapshot.sortedResults) { player in
-                        let perfects = snapshot.perfectMatchCount(for: player.id)
-                        let best = snapshot.bestTurn(for: player.id)
+                            Label("\(perfects)回", systemImage: "star.fill")
+                                .foregroundStyle(.orange)
 
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(player.name)
-                                .font(.headline)
-
-                            HStack(spacing: 16) {
-                                statItem(icon: "star.fill", value: "\(perfects)回", label: "完全一致", color: .orange)
-
-                                if let best {
-                                    statItem(
-                                        icon: "flame.fill",
-                                        value: "\(best.score)点",
-                                        label: "ベストターン",
-                                        color: .red
-                                    )
-                                }
-
-                                statItem(icon: "trophy.fill", value: "\(player.score)点", label: "合計", color: .yellow)
+                            if let best {
+                                Label("最高\(best.score)点", systemImage: "flame.fill")
+                                    .foregroundStyle(.red)
                             }
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
-                }
 
-                // MARK: - Analytics link
-                NavigationLink {
-                    AnalyticsView(snapshot: snapshot)
-                } label: {
-                    HStack {
-                        Image(systemName: "chart.bar.xaxis.ascending")
-                            .foregroundStyle(.cyan)
-                        Text("分析を見る")
-                            .font(.headline)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundStyle(.secondary)
+                            Spacer()
+                        }
+                        .font(.caption)
                     }
-                    .padding()
-                    .background(Color.cyan.opacity(0.08))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(index == 0 ? Color.orange.opacity(0.12) : Color(.systemGray6))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+            }
 
-                // MARK: - Replay
-                Button(action: onReplay) {
-                    Text("もう1回")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.accentColor)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+            Spacer(minLength: 12)
+
+            // MARK: - Analytics links
+            HStack(spacing: 10) {
+                NavigationLink {
+                    CompatibilityAnalyticsView(snapshot: snapshot)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "person.2.fill")
+                            .font(.title3)
+                            .foregroundStyle(.pink)
+                        Text("相性分析")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 26)
+                    .background(Color.pink.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+
+                NavigationLink {
+                    TopicAnalyticsView(snapshot: snapshot)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "exclamationmark.bubble.fill")
+                            .font(.title3)
+                            .foregroundStyle(.orange)
+                        Text("お題分析")
+                            .font(.body)
+                            .fontWeight(.semibold)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 26)
+                    .background(Color.orange.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
             }
-            .padding()
         }
+        .padding()
         .navigationTitle("ゲーム結果")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: onReplay) {
+                    Label("もう1回", systemImage: "arrow.counterclockwise")
+                }
+            }
+        }
     }
 
     private func rankLabel(_ rank: Int) -> String {
@@ -115,19 +119,5 @@ struct EndView: View {
         case 3: "🥉"
         default: "\(rank)位"
         }
-    }
-
-    private func statItem(icon: String, value: String, label: String, color: Color) -> some View {
-        VStack(spacing: 4) {
-            Image(systemName: icon)
-                .foregroundStyle(color)
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.bold)
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
     }
 }
