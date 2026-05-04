@@ -1,84 +1,82 @@
 import SwiftUI
 
-struct AnalyticsView: View {
+// MARK: - 相性分析
+
+struct CompatibilityAnalyticsView: View {
     let snapshot: GameSessionSnapshot
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 28) {
-                // MARK: - Best match pair
-                if let best = AnalyticsService.bestMatchPair(snapshot: snapshot) {
-                    VStack(spacing: 8) {
-                        Image(systemName: "heart.fill")
-                            .font(.title)
-                            .foregroundStyle(.pink)
+        VStack(spacing: 16) {
+            // Best match pair
+            if let best = AnalyticsService.bestMatchPair(snapshot: snapshot) {
+                HStack(spacing: 12) {
+                    Image(systemName: "heart.fill")
+                        .font(.title2)
+                        .foregroundStyle(.pink)
+                    VStack(alignment: .leading, spacing: 2) {
                         Text("最も気が合うコンビ")
-                            .font(.headline)
-                        Text("\(best.playerA.name) & \(best.playerB.name)")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        Text("相互理解度: \(Int(best.mutualScore))点")
-                            .font(.subheadline)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
+                        Text("\(best.playerA.name) & \(best.playerB.name)")
+                            .font(.title3)
+                            .fontWeight(.bold)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.pink.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    Spacer()
+                    Text("\(Int(best.mutualScore))点")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.pink)
                 }
-
-                // MARK: - Pairwise scores
-                pairwiseSection
-
-                // MARK: - Predictability
-                predictabilitySection
-
-                // MARK: - Surprise ranking
-                surpriseSection
+                .padding(12)
+                .background(Color.pink.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .padding()
+
+            // Pairwise matrix
+            pairwiseSection
+
+            // Predictability
+            predictabilitySection
+
+            Spacer()
         }
-        .navigationTitle("分析")
+        .padding()
+        .navigationTitle("相性分析")
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    // MARK: - Pairwise Scores
-
     private var pairwiseSection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             Label("推測理解度", systemImage: "person.2.fill")
-                .font(.headline)
+                .font(.subheadline)
+                .fontWeight(.semibold)
 
             let pairs = AnalyticsService.pairwiseScores(snapshot: snapshot)
             let players = snapshot.players
 
-            // Matrix grid
-            Grid(alignment: .center, horizontalSpacing: 4, verticalSpacing: 4) {
-                // Header row
+            Grid(alignment: .center, horizontalSpacing: 3, verticalSpacing: 3) {
                 GridRow {
                     Text("")
-                        .frame(width: 50)
+                        .frame(width: 44)
                     ForEach(players) { p in
-                        Text(String(p.name.prefix(4)))
-                            .font(.caption)
+                        Text(String(p.name.prefix(3)))
+                            .font(.caption2)
                             .fontWeight(.bold)
-                            .frame(width: 50)
+                            .frame(width: 44)
                     }
                 }
-
-                // Data rows
                 ForEach(players) { guesser in
                     GridRow {
-                        Text(String(guesser.name.prefix(4)))
-                            .font(.caption)
+                        Text(String(guesser.name.prefix(3)))
+                            .font(.caption2)
                             .fontWeight(.bold)
-                            .frame(width: 50)
+                            .frame(width: 44)
 
                         ForEach(players) { target in
                             if guesser.id == target.id {
                                 Text("-")
-                                    .font(.caption)
-                                    .frame(width: 50, height: 36)
+                                    .font(.caption2)
+                                    .frame(width: 44, height: 30)
                                     .background(Color(.systemGray5))
                                     .clipShape(RoundedRectangle(cornerRadius: 4))
                             } else {
@@ -86,9 +84,9 @@ struct AnalyticsView: View {
                                     $0.guesser.id == guesser.id && $0.target.id == target.id
                                 }?.averageScore ?? 0
                                 Text("\(Int(score))")
-                                    .font(.caption)
+                                    .font(.caption2)
                                     .fontWeight(.semibold)
-                                    .frame(width: 50, height: 36)
+                                    .frame(width: 44, height: 30)
                                     .background(scoreColor(score).opacity(0.2))
                                     .clipShape(RoundedRectangle(cornerRadius: 4))
                             }
@@ -97,21 +95,20 @@ struct AnalyticsView: View {
                 }
             }
 
-            Text("行: 予想者 → 列: ターゲット への平均スコア")
+            Text("行: 予想者 → 列: ターゲット")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
-        .padding()
+        .padding(12)
         .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-    // MARK: - Predictability
-
     private var predictabilitySection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             Label("読まれやすさ", systemImage: "eye.fill")
-                .font(.headline)
+                .font(.subheadline)
+                .fontWeight(.semibold)
 
             let results = AnalyticsService.predictability(snapshot: snapshot)
                 .sorted { $0.averageScoreAgainst > $1.averageScoreAgainst }
@@ -119,77 +116,27 @@ struct AnalyticsView: View {
             ForEach(results, id: \.player.id) { result in
                 HStack {
                     Text(result.player.name)
-                        .font(.subheadline)
-                    Spacer()
-
-                    Text(result.label)
                         .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                    Spacer()
+                    Text(result.label)
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
                         .background(predictabilityColor(result).opacity(0.15))
                         .clipShape(Capsule())
-
                     Text("\(Int(result.averageScoreAgainst))点")
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                        .frame(width: 50, alignment: .trailing)
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 6)
-            }
-        }
-        .padding()
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    // MARK: - Surprise Ranking
-
-    private var surpriseSection: some View {
-        VStack(spacing: 12) {
-            Label("サプライズお題", systemImage: "exclamationmark.bubble.fill")
-                .font(.headline)
-
-            let ranking = AnalyticsService.surpriseRanking(snapshot: snapshot)
-
-            ForEach(Array(ranking.prefix(3).enumerated()), id: \.offset) { index, item in
-                HStack {
-                    Text("\(index + 1).")
                         .font(.caption)
                         .fontWeight(.bold)
-                        .frame(width: 24)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(item.question)
-                            .font(.subheadline)
-                        Text("平均 \(Int(item.averageScore))点")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-
-                    Text("意外度 \(Int(item.surpriseIndex))")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.orange)
+                        .frame(width: 40, alignment: .trailing)
                 }
-                .padding(.horizontal)
-                .padding(.vertical, 6)
-            }
-
-            if ranking.isEmpty {
-                Text("データがありません")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
             }
         }
-        .padding()
+        .padding(12)
         .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
-
-    // MARK: - Helpers
 
     private func scoreColor(_ score: Double) -> Color {
         if score >= 80 { return .green }
@@ -201,5 +148,88 @@ struct AnalyticsView: View {
         if result.averageScoreAgainst >= 60 { return .green }
         if result.averageScoreAgainst >= 30 { return .yellow }
         return .purple
+    }
+}
+
+// MARK: - お題分析
+
+struct TopicAnalyticsView: View {
+    let snapshot: GameSessionSnapshot
+
+    var body: some View {
+        VStack(spacing: 16) {
+            let ranking = AnalyticsService.surpriseRanking(snapshot: snapshot)
+
+            // Summary
+            if let top = ranking.first {
+                HStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.bubble.fill")
+                        .font(.title2)
+                        .foregroundStyle(.orange)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("最も意外だったお題")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(top.question)
+                            .font(.headline)
+                            .fontWeight(.bold)
+                    }
+                    Spacer()
+                }
+                .padding(12)
+                .background(Color.orange.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+
+            // Full ranking
+            VStack(spacing: 8) {
+                Label("サプライズランキング", systemImage: "list.number")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+
+                ForEach(Array(ranking.enumerated()), id: \.offset) { index, item in
+                    HStack {
+                        Text("\(index + 1).")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .frame(width: 20)
+
+                        Text(item.question)
+                            .font(.caption)
+                            .lineLimit(1)
+
+                        Spacer()
+
+                        Text("平均\(Int(item.averageScore))点")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+
+                        Text("意外度 \(Int(item.surpriseIndex))")
+                            .font(.caption2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.orange)
+                            .frame(width: 60, alignment: .trailing)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(index == 0 ? Color.orange.opacity(0.06) : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                }
+
+                if ranking.isEmpty {
+                    Text("データがありません")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(12)
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+
+            Spacer()
+        }
+        .padding()
+        .navigationTitle("お題分析")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
