@@ -6,6 +6,9 @@ struct TopicView: View {
 
     private let choiceColors: [Color] = [.red, .blue, .green]
 
+    @State private var showBlockReasonSheet = false
+    @State private var showBlockedFeedback = false
+
     var body: some View {
         ZStack {
             LinearGradient(
@@ -42,6 +45,22 @@ struct TopicView: View {
                         .font(.system(size: 28, weight: .bold))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
+                        .contextMenu {
+                            ForEach(TopicBlockReason.allCases, id: \.self) { reason in
+                                Button {
+                                    viewModel.blockCurrentTopic(reason: reason)
+                                    showBlockedFeedback = true
+                                } label: {
+                                    Label("ブロック: \(reason.displayName)", systemImage: "hand.raised")
+                                }
+                            }
+                            Button(role: .destructive) {
+                                viewModel.blockCurrentTopic(reason: nil)
+                                showBlockedFeedback = true
+                            } label: {
+                                Label("理由なしでブロック", systemImage: "hand.raised.slash")
+                            }
+                        }
 
                     // Choices
                     VStack(spacing: 12) {
@@ -108,6 +127,25 @@ struct TopicView: View {
                 }
             }
             .padding()
+
+            if showBlockedFeedback {
+                VStack {
+                    Text("お題をブロックしました")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Capsule())
+                        .padding(.top, 60)
+                    Spacer()
+                }
+                .transition(.opacity)
+                .task {
+                    try? await Task.sleep(nanoseconds: 1_500_000_000)
+                    withAnimation { showBlockedFeedback = false }
+                }
+            }
         }
     }
 }

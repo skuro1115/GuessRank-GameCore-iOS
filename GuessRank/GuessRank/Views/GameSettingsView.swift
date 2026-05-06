@@ -3,6 +3,7 @@ import SwiftUI
 struct GameSettingsView: View {
     @Bindable var viewModel: GameSetupViewModel
     var topicHistoryStore: TopicHistoryStore
+    var topicBlockStore: TopicBlockStore
     var onStart: () -> Void
     var onShowHistory: () -> Void
 
@@ -143,7 +144,10 @@ struct GameSettingsView: View {
             }
         }
         .sheet(isPresented: $showTopicSettings) {
-            TopicSettingsView(topicHistoryStore: topicHistoryStore) {
+            TopicSettingsView(
+                topicHistoryStore: topicHistoryStore,
+                topicBlockStore: topicBlockStore
+            ) {
                 showTopicSettings = false
             }
         }

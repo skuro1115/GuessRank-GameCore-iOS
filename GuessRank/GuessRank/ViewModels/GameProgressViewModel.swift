@@ -9,6 +9,7 @@ class GameProgressViewModel {
     private var usedTopicIds: Set<String> = []
     private let topicProvider: TopicProviding
     private let topicHistory: TopicHistoryStore?
+    private let topicBlock: TopicBlockStore?
 
     // MARK: - Convenience accessors
 
@@ -50,12 +51,17 @@ class GameProgressViewModel {
     init(
         session: GameSession,
         topicProvider: TopicProviding = TopicService(),
-        topicHistory: TopicHistoryStore? = nil
+        topicHistory: TopicHistoryStore? = nil,
+        topicBlock: TopicBlockStore? = nil
     ) {
         self.session = session
         self.topicProvider = topicProvider
         self.topicHistory = topicHistory
-        let excluded = topicHistory?.playedIds ?? []
+        self.topicBlock = topicBlock
+        var excluded: Set<String> = topicHistory?.playedIds ?? []
+        if let blocked = topicBlock?.blockedIds {
+            excluded.formUnion(blocked)
+        }
         self.topics = topicProvider.pickTopics(
             count: session.totalTurns,
             genre: session.config.genre,
@@ -102,6 +108,14 @@ class GameProgressViewModel {
         }
     }
 
+    /// 現在のお題をブロック登録してから次のお題に差し替える。
+    /// `phase == .showTopic` のときのみ実行可能（出題前の差し替えだけを許可）。
+    func blockCurrentTopic(reason: TopicBlockReason? = nil) {
+        guard canPass, let current = currentTopic else { return }
+        topicBlock?.block(current.id, reason: reason)
+        passTopic()
+    }
+
     func passTopic() {
         guard canPass else { return }
 
@@ -112,6 +126,9 @@ class GameProgressViewModel {
         var excluded = usedTopicIds.union(topics.map { $0.id })
         if let history = topicHistory {
             excluded.formUnion(history.playedIds)
+        }
+        if let block = topicBlock {
+            excluded.formUnion(block.blockedIds)
         }
         let candidates = topicProvider.pickTopics(
             count: 1,

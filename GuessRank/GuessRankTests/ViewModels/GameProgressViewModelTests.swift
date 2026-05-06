@@ -268,12 +268,72 @@ final class GameProgressViewModelTests: XCTestCase {
         }
     }
 
+    // MARK: - Topic block integration
+
+    func test_blockCurrentTopicでブロックストアに登録される() throws {
+        let tempDir = makeTempDir()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let block = TopicBlockStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], block: block)
+        let topic = try XCTUnwrap(vm.currentTopic)
+
+        vm.blockCurrentTopic(reason: .boring)
+
+        XCTAssertTrue(block.isBlocked(topic.id))
+        XCTAssertEqual(block.entries.first?.reason, .boring)
+    }
+
+    func test_blockCurrentTopicでお題が差し替わる() throws {
+        let tempDir = makeTempDir()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let block = TopicBlockStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], block: block)
+        let originalId = try XCTUnwrap(vm.currentTopic?.id)
+
+        vm.blockCurrentTopic(reason: nil)
+
+        XCTAssertNotEqual(vm.currentTopic?.id, originalId, "ブロック後はお題が差し替わる")
+    }
+
+    func test_ブロック済みお題は初期Topicから除外される() throws {
+        let tempDir = makeTempDir()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let block = TopicBlockStore(directory: tempDir)
+        let blockedIds = Set(["mock_1", "mock_2", "mock_3"])
+        for id in blockedIds {
+            block.block(id, reason: .inappropriate)
+        }
+
+        let vm = makeViewModel(playerNames: ["A", "B", "C"], cycleCount: 3, block: block)
+        let initialIds = Set(vm.session.turns.map { $0.topic.id })
+
+        XCTAssertTrue(initialIds.isDisjoint(with: blockedIds), "ブロック済みは選ばれない")
+    }
+
+    func test_rankingInputフェーズではblockできない() throws {
+        let tempDir = makeTempDir()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let block = TopicBlockStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], block: block)
+        vm.startTargetInput()
+
+        let countBefore = block.count
+        vm.blockCurrentTopic(reason: .other)
+
+        XCTAssertEqual(block.count, countBefore, "showTopic 以外ではブロックできない")
+    }
+
     // MARK: - Helpers
 
     private func makeViewModel(
         playerNames: [String],
         cycleCount: Int = 1,
-        history: TopicHistoryStore? = nil
+        history: TopicHistoryStore? = nil,
+        block: TopicBlockStore? = nil
     ) -> GameProgressViewModel {
         let config = Fixtures.config(
             cycleCount: cycleCount,
@@ -284,7 +344,8 @@ final class GameProgressViewModelTests: XCTestCase {
         return GameProgressViewModel(
             session: session,
             topicProvider: MockTopicProvider(),
-            topicHistory: history
+            topicHistory: history,
+            topicBlock: block
         )
     }
 
