@@ -2,10 +2,12 @@ import SwiftUI
 
 struct GameSettingsView: View {
     @Bindable var viewModel: GameSetupViewModel
+    var topicHistoryStore: TopicHistoryStore
     var onStart: () -> Void
     var onShowHistory: () -> Void
 
     @FocusState private var focusedIndex: Int?
+    @State private var showTopicSettings = false
 
     var body: some View {
         VStack(spacing: 12) {
@@ -128,9 +130,21 @@ struct GameSettingsView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showTopicSettings = true
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
                 Button { onShowHistory() } label: {
                     Image(systemName: "clock.arrow.circlepath")
                 }
+            }
+        }
+        .sheet(isPresented: $showTopicSettings) {
+            TopicSettingsView(topicHistoryStore: topicHistoryStore) {
+                showTopicSettings = false
             }
         }
         .onTapGesture { focusedIndex = nil }

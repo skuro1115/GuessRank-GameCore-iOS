@@ -8,6 +8,7 @@ class GameProgressViewModel {
     private var topics: [Topic] = []
     private var usedTopicIds: Set<String> = []
     private let topicProvider: TopicProviding
+    private let topicHistory: TopicHistoryStore?
 
     // MARK: - Convenience accessors
 
@@ -46,13 +47,20 @@ class GameProgressViewModel {
         phase == .showTopic
     }
 
-    init(session: GameSession, topicProvider: TopicProviding = TopicService()) {
+    init(
+        session: GameSession,
+        topicProvider: TopicProviding = TopicService(),
+        topicHistory: TopicHistoryStore? = nil
+    ) {
         self.session = session
         self.topicProvider = topicProvider
+        self.topicHistory = topicHistory
+        let excluded = topicHistory?.playedIds ?? []
         self.topics = topicProvider.pickTopics(
             count: session.totalTurns,
             genre: session.config.genre,
-            difficulty: session.config.difficulty
+            difficulty: session.config.difficulty,
+            excluding: excluded
         )
         loadTopic()
     }
@@ -88,6 +96,9 @@ class GameProgressViewModel {
 
         if case .showResult = phase {
             GameEngine.completeTurn(session: &session)
+            if let topicId = currentTopic?.id {
+                topicHistory?.record(topicId)
+            }
         }
     }
 
@@ -98,7 +109,10 @@ class GameProgressViewModel {
             usedTopicIds.insert(current.id)
         }
 
-        let excluded = usedTopicIds.union(topics.map { $0.id })
+        var excluded = usedTopicIds.union(topics.map { $0.id })
+        if let history = topicHistory {
+            excluded.formUnion(history.playedIds)
+        }
         let candidates = topicProvider.pickTopics(
             count: 1,
             genre: session.config.genre,

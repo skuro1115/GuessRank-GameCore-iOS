@@ -208,11 +208,72 @@ final class GameProgressViewModelTests: XCTestCase {
         XCTAssertFalse(vm.canPass, "rankingInputフェーズではパス不可")
     }
 
+    // MARK: - Topic history integration
+
+    func test_ターン完了でTopicHistoryStoreに記録される() throws {
+        let tempDir = makeTempDir()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let history = TopicHistoryStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], history: history)
+        let topic = try XCTUnwrap(vm.currentTopic)
+
+        XCTAssertFalse(history.playedIds.contains(topic.id))
+
+        completeTurn(vm: vm, correctAnswer: true)
+
+        XCTAssertTrue(history.playedIds.contains(topic.id), "ターン完了でお題IDが履歴に記録されるべき")
+    }
+
+    func test_履歴にあるお題は初期Topicから除外される() throws {
+        let tempDir = makeTempDir()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let history = TopicHistoryStore(directory: tempDir)
+        // モックの全Topic IDのうち、最初の5件を「プレイ済み」として登録
+        let allMockIds = Set((1...20).map { "mock_\($0)" })
+        let played = Set(["mock_1", "mock_2", "mock_3", "mock_4", "mock_5"])
+        history.record(played)
+
+        let vm = makeViewModel(playerNames: ["A", "B", "C"], cycleCount: 3, history: history)
+        // totalTurns = 9
+        let initialIds = Set(vm.session.turns.map { $0.topic.id })
+
+        XCTAssertTrue(initialIds.isSubset(of: allMockIds.subtracting(played)),
+                     "履歴にあるIDは選ばれるべきでない")
+    }
+
+    func test_passTopicは履歴にあるお題を選ばない() throws {
+        let tempDir = makeTempDir()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let history = TopicHistoryStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], history: history)
+
+        // セッション内で使われている&使ったお題IDをすべて履歴に登録（モックは20件、totalTurns=2）
+        // pass後の候補が履歴により制限されることを確認
+        let inSessionIds = Set(vm.session.turns.map { $0.topic.id })
+        // 残りのモックIDのうち1件以外を全部履歴に
+        let remaining = Set((1...20).map { "mock_\($0)" }).subtracting(inSessionIds)
+        let toBlock = remaining.dropLast() // 1つだけ候補を残す
+        history.record(toBlock)
+
+        let originalId = vm.currentTopic?.id
+        vm.passTopic()
+
+        // pass後は inSession でも履歴済みでもないIDが選ばれるべき
+        if let newId = vm.currentTopic?.id, newId != originalId {
+            XCTAssertFalse(toBlock.contains(newId), "履歴にあるIDが選ばれてしまった")
+            XCTAssertFalse(inSessionIds.contains(newId), "セッション内で使ったIDが選ばれてしまった")
+        }
+    }
+
     // MARK: - Helpers
 
     private func makeViewModel(
         playerNames: [String],
-        cycleCount: Int = 1
+        cycleCount: Int = 1,
+        history: TopicHistoryStore? = nil
     ) -> GameProgressViewModel {
         let config = Fixtures.config(
             cycleCount: cycleCount,
@@ -220,7 +281,18 @@ final class GameProgressViewModelTests: XCTestCase {
         )
         let players = Fixtures.players(playerNames)
         let session = GameSession(config: config, players: players)
-        return GameProgressViewModel(session: session, topicProvider: MockTopicProvider())
+        return GameProgressViewModel(
+            session: session,
+            topicProvider: MockTopicProvider(),
+            topicHistory: history
+        )
+    }
+
+    private func makeTempDir() -> URL {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("vm_history_tests_\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
     }
 
     /// 1ターンを完走させるヘルパー。correctAnswer=true なら全員が正解で100点、false なら全員外れ。
