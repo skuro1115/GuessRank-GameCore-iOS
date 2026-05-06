@@ -185,13 +185,23 @@ struct TopicService: TopicProviding {
         Topic(id: "random_h07", question: "AI に任せたいことは？", choices: ["家事", "仕事", "勉強"], genre: .random, difficulty: .hard),
     ]
 
-    func pickTopics(count: Int, genre: Genre, difficulty: Difficulty) -> [Topic] {
-        let pool: [Topic]
+    func pickTopics(
+        count: Int,
+        genre: Genre,
+        difficulty: Difficulty,
+        excluding: Set<String>
+    ) -> [Topic] {
+        let basePool: [Topic]
         if genre == .random {
-            pool = Self.allTopics
+            basePool = Self.allTopics
         } else {
-            pool = Self.allTopics.filter { $0.genre == genre }
+            basePool = Self.allTopics.filter { $0.genre == genre }
         }
+
+        let filtered = basePool.filter { !excluding.contains($0.id) }
+        // Fall back to the unfiltered pool when exclusion eliminates every candidate
+        // so the game can always continue.
+        let pool = filtered.isEmpty ? basePool : filtered
         return Array(pool.shuffled().prefix(count))
     }
 }

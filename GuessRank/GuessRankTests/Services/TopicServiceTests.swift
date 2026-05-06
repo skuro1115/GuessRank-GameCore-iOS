@@ -48,4 +48,27 @@ final class TopicServiceTests: XCTestCase {
         let ids = TopicService.allTopics.map { $0.id }
         XCTAssertEqual(ids.count, Set(ids).count, "allTopics に id の重複がある")
     }
+
+    func test_excluding指定したIDは選ばれない() {
+        let excluded: Set<String> = ["food_e01", "food_e02", "food_e03"]
+        let topics = TopicService().pickTopics(count: 5, genre: .food, difficulty: .easy, excluding: excluded)
+        for topic in topics {
+            XCTAssertFalse(excluded.contains(topic.id), "除外IDが選ばれている: \(topic.id)")
+        }
+    }
+
+    func test_excluding空はデフォルト挙動と等価() {
+        let withEmpty = TopicService().pickTopics(count: 3, genre: .food, difficulty: .easy, excluding: [])
+        let withDefault = TopicService().pickTopics(count: 3, genre: .food, difficulty: .easy)
+        XCTAssertEqual(withEmpty.count, withDefault.count)
+        XCTAssertTrue(withEmpty.allSatisfy { $0.genre == .food })
+    }
+
+    func test_全候補が除外されたらフォールバックで返す() {
+        let foodIds = Set(TopicService.allTopics.filter { $0.genre == .food }.map { $0.id })
+        let topics = TopicService().pickTopics(count: 3, genre: .food, difficulty: .easy, excluding: foodIds)
+        // フィルタ後が空でもクラッシュせず、お題を返す（ゲーム継続を優先）
+        XCTAssertFalse(topics.isEmpty)
+        XCTAssertTrue(topics.allSatisfy { $0.genre == .food })
+    }
 }

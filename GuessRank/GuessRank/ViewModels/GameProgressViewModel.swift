@@ -98,14 +98,15 @@ class GameProgressViewModel {
             usedTopicIds.insert(current.id)
         }
 
-        let allUsed = usedTopicIds.union(topics.map { $0.id })
+        let excluded = usedTopicIds.union(topics.map { $0.id })
         let candidates = topicProvider.pickTopics(
-            count: 10,
+            count: 1,
             genre: session.config.genre,
-            difficulty: session.config.difficulty
-        ).filter { !allUsed.contains($0.id) }
+            difficulty: session.config.difficulty,
+            excluding: excluded
+        )
 
-        guard let replacement = candidates.first else { return }
+        guard let replacement = candidates.first, !excluded.contains(replacement.id) else { return }
 
         let topicIndex = session.currentTurnIndex
         topics[topicIndex] = replacement

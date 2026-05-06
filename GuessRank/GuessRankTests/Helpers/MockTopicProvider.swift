@@ -10,7 +10,14 @@ struct MockTopicProvider: TopicProviding {
         }
     }
 
-    func pickTopics(count: Int, genre: Genre, difficulty: Difficulty) -> [Topic] {
-        Array(topics.shuffled().prefix(count))
+    func pickTopics(
+        count: Int,
+        genre: Genre,
+        difficulty: Difficulty,
+        excluding: Set<String>
+    ) -> [Topic] {
+        let filtered = topics.filter { !excluding.contains($0.id) }
+        let pool = filtered.isEmpty ? topics : filtered
+        return Array(pool.shuffled().prefix(count))
     }
 }
