@@ -36,7 +36,12 @@
 - `GameProgressViewModel`: ターン完了時に `topicHistory?.record(_:)` を呼ぶ
 - `TopicSettingsView`: リセット UI（ゲーム設定画面のギアアイコンから開く）
 
+## 通知
+
+- 全お題プレイ済み（`playedCount >= TopicService.totalTopicCount`）の場合、`TopicSettingsView` 上部に警告バナーを表示する
+- 残数が少ない（`max(5, total/20)` 以下）場合は黄色の注意バナーを表示する
+
 ## 将来拡張
 
 - Phase 2: お題ごとの最終プレイ日時を保持し、古いものから優先的に再選出する
-- Phase 2: 全お題プレイ済みの場合の通知（候補が枯渇した時のユーザー誘導）
+- Phase 2: ジャンル別の進捗・枯渇通知（現状は全体プールに対する通知のみ）

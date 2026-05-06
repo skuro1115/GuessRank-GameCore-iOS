@@ -16,14 +16,51 @@ struct TopicSettingsView: View {
         Dictionary(uniqueKeysWithValues: TopicService.allTopics.map { ($0.id, $0) })
     }
 
+    private var totalCount: Int { TopicService.totalTopicCount }
+    private var remainingCount: Int { max(0, totalCount - playedCount) }
+    private var isExhausted: Bool { totalCount > 0 && playedCount >= totalCount }
+    private var isNearExhaustion: Bool {
+        totalCount > 0 && !isExhausted && remainingCount <= max(5, totalCount / 20)
+    }
+
     var body: some View {
         NavigationStack {
             List {
+                if isExhausted {
+                    Section {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                                .font(.title3)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("全てのお題をプレイ済みです")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                Text("履歴をリセットすると同じお題が再び選ばれます。")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .listRowBackground(Color.orange.opacity(0.1))
+                } else if isNearExhaustion {
+                    Section {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: "exclamationmark.circle")
+                                .foregroundStyle(.yellow)
+                            Text("残り \(remainingCount) 件のお題で全てプレイ済みになります。")
+                                .font(.caption)
+                        }
+                    }
+                    .listRowBackground(Color.yellow.opacity(0.08))
+                }
+
                 Section {
                     HStack {
                         Label("プレイ済みお題", systemImage: "checkmark.circle")
                         Spacer()
-                        Text("\(playedCount)件")
+                        Text("\(playedCount) / \(totalCount)件")
                             .foregroundStyle(.secondary)
                     }
 

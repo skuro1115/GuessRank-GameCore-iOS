@@ -1,6 +1,10 @@
 import Foundation
 
 struct TopicService: TopicProviding {
+    /// Total number of topics in the bundled pool. Used by the UI to detect
+    /// "全てプレイ済み" exhaustion against TopicHistoryStore.
+    static var totalTopicCount: Int { allTopics.count }
+
     static let allTopics: [Topic] = [
         // ━━━━━━━━━━ 食べ物 ━━━━━━━━━━
         // easy

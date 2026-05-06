@@ -11,13 +11,27 @@
 ├─ タイトル: お題管理
 └─ 右上: 閉じる
 
+セクション「枯渇通知」（条件付き表示）
+├─ 全消化: 「全てのお題をプレイ済みです」+ オレンジ警告アイコン
+└─ 残り少: 「残り N 件のお題で全てプレイ済みになります。」+ 黄色注意アイコン
+
 セクション「お題履歴」
-├─ プレイ済みお題: {N}件（チェックマークアイコン）
+├─ プレイ済みお題: {N} / {Total}件（チェックマークアイコン）
 └─ 履歴をリセット（destructive、playedCount==0 で disabled）
 
 セクション「ブロック中のお題」
 └─ （別機能 topic_block を参照）
 ```
+
+### 枯渇判定ロジック
+
+| 状態 | 条件 |
+|---|---|
+| 通常 | `playedCount < total - max(5, total/20)` |
+| 残り少 | `playedCount >= total - max(5, total/20)` かつ `playedCount < total` |
+| 枯渇 | `playedCount >= total` |
+
+`total` は `TopicService.totalTopicCount`。
 
 ### 操作
 
