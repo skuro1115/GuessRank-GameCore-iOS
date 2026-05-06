@@ -327,6 +327,78 @@ final class GameProgressViewModelTests: XCTestCase {
         XCTAssertEqual(block.count, countBefore, "showTopic 以外ではブロックできない")
     }
 
+    // MARK: - Hard mode
+
+    func test_ハードモード_ターゲット入力初期値は空配列() throws {
+        let vm = makeHardViewModel(playerNames: ["A", "B"])
+        XCTAssertEqual(vm.currentTopic?.playMode, .hard)
+
+        vm.startTargetInput()
+
+        XCTAssertEqual(vm.rankingInput, [], "ハードモードは選択前の空状態で開始")
+    }
+
+    func test_ハードモード_canSubmitRankingは3要素揃わないとfalse() {
+        let vm = makeHardViewModel(playerNames: ["A", "B"])
+        vm.startTargetInput()
+        vm.uncoverInput()
+
+        XCTAssertFalse(vm.canSubmitRanking)
+
+        // 1つ選択
+        vm.rankingInput = [vm.currentTopic!.choices[0]]
+        XCTAssertFalse(vm.canSubmitRanking)
+
+        // 2つ選択
+        vm.rankingInput = Array(vm.currentTopic!.choices.prefix(2))
+        XCTAssertFalse(vm.canSubmitRanking)
+
+        // 3つ揃ったら true
+        vm.rankingInput = Array(vm.currentTopic!.choices.prefix(3))
+        XCTAssertTrue(vm.canSubmitRanking)
+    }
+
+    func test_ハードモード_未完了状態でsubmitしても進まない() {
+        let vm = makeHardViewModel(playerNames: ["A", "B"])
+        vm.startTargetInput()
+        vm.uncoverInput()
+        vm.rankingInput = []  // 未完成
+
+        vm.submitRanking()
+
+        if case .rankingInput(let index, let covered) = vm.phase {
+            XCTAssertEqual(index, 0, "未完成 submit ではフェーズが進まない")
+            XCTAssertFalse(covered)
+        } else {
+            XCTFail("ターゲット入力フェーズに留まるべき")
+        }
+    }
+
+    func test_ハードモード_完全一致ゴールデンパス() throws {
+        let vm = makeHardViewModel(playerNames: ["A", "B"])
+        let topic = try XCTUnwrap(vm.currentTopic)
+        XCTAssertEqual(topic.choices.count, 6)
+
+        let target3 = Array(topic.choices.prefix(3))
+
+        // ターゲット入力: 上位3つ
+        vm.startTargetInput()
+        vm.uncoverInput()
+        vm.rankingInput = target3
+        vm.submitRanking()
+
+        // 予想者B: 完全一致
+        vm.uncoverInput()
+        vm.rankingInput = target3
+        vm.submitRanking()
+
+        XCTAssertEqual(vm.phase, .showResult)
+        let turn = try XCTUnwrap(vm.currentTurn)
+        XCTAssertTrue(turn.isCompleted)
+        XCTAssertEqual(turn.correctRanking, target3)
+        XCTAssertEqual(turn.answers.first?.score, 100)
+    }
+
     // MARK: - Helpers
 
     private func makeViewModel(
@@ -346,6 +418,36 @@ final class GameProgressViewModelTests: XCTestCase {
             topicProvider: MockTopicProvider(),
             topicHistory: history,
             topicBlock: block
+        )
+    }
+
+    private func makeHardViewModel(
+        playerNames: [String],
+        cycleCount: Int = 1
+    ) -> GameProgressViewModel {
+        let config = GameConfig(
+            genre: .random,
+            difficulty: .normal,
+            cycleCount: cycleCount,
+            playerCount: playerNames.count,
+            playMode: .hard
+        )
+        let players = Fixtures.players(playerNames)
+        let session = GameSession(config: config, players: players)
+        // 6-choice mock topics for hard mode
+        let hardTopics = (1...10).map { i in
+            Topic(
+                id: "hard_mock_\(i)",
+                question: "HQ\(i)",
+                choices: ["a\(i)", "b\(i)", "c\(i)", "d\(i)", "e\(i)", "f\(i)"],
+                genre: .random,
+                difficulty: .normal,
+                playMode: .hard
+            )
+        }
+        return GameProgressViewModel(
+            session: session,
+            topicProvider: MockTopicProvider(topics: hardTopics)
         )
     }
 

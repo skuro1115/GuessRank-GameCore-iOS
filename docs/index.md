@@ -45,6 +45,7 @@
 | [features/end_screen/](features/end_screen/) | 終了画面（最終順位・再戦） | MVP |
 | [features/topic_history/](features/topic_history/) | お題履歴・重複回避 | 実装済み |
 | [features/topic_block/](features/topic_block/) | お題ブロック | 実装済み |
+| [features/play_modes/](features/play_modes/) | プレイモード（normal / hard） | 実装済み |
 | [features/_template/](features/_template/) | 新機能追加用テンプレート | — |
 
 ### 将来拡張（Future）
@@ -54,7 +55,6 @@
 | [future/multiplayer_design.md](future/multiplayer_design.md) | 複数台通信設計（ネット / Bluetooth） |
 | [future/analytics_design.md](future/analytics_design.md) | 分析・価値観可視化設計 |
 | [future/monetization.md](future/monetization.md) | 課金設計 |
-| [future/play_modes.md](future/play_modes.md) | プレイモード切り替え（ハードモード等） |
 | [future/remote_topics.md](future/remote_topics.md) | お題リモート配信 |
 
 ---

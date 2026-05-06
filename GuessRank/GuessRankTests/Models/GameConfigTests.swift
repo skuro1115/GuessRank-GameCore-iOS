@@ -33,5 +33,34 @@ final class GameConfigTests: XCTestCase {
         XCTAssertEqual(decoded.difficulty, .hard)
         XCTAssertEqual(decoded.cycleCount, 3)
         XCTAssertEqual(decoded.playerCount, 5)
+        XCTAssertEqual(decoded.playMode, .normal)
+    }
+
+    func test_playMode_デフォルトはnormal() {
+        let config = GameConfig(genre: .random, difficulty: .normal, cycleCount: 1, playerCount: 3)
+        XCTAssertEqual(config.playMode, .normal)
+    }
+
+    func test_playMode_hardを指定できる() {
+        let config = GameConfig(genre: .random, difficulty: .normal, cycleCount: 1, playerCount: 3, playMode: .hard)
+        XCTAssertEqual(config.playMode, .hard)
+    }
+
+    func test_Codable_playMode付きで往復できる() throws {
+        let config = GameConfig(genre: .food, difficulty: .hard, cycleCount: 2, playerCount: 4, playMode: .hard)
+        let data = try JSONEncoder().encode(config)
+        let decoded = try JSONDecoder().decode(GameConfig.self, from: data)
+
+        XCTAssertEqual(decoded.playMode, .hard)
+    }
+
+    func test_Codable_旧JSON_playMode未指定はnormalにフォールバック() throws {
+        // 旧バージョンで保存された GameConfig（playMode フィールド無し）の互換性
+        let legacyJSON = """
+        {"genre":"random","difficulty":"normal","cycleCount":1,"playerCount":3}
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(GameConfig.self, from: legacyJSON)
+
+        XCTAssertEqual(decoded.playMode, .normal, "playMode フィールドが無いJSONは normal にフォールバックすべき")
     }
 }

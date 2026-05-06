@@ -52,6 +52,22 @@ struct GameSettingsView: View {
                     .pickerStyle(.segmented)
                     .frame(maxWidth: 200)
                 }
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("プレイモード")
+                        Text(viewModel.playMode.shortDescription)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Picker("プレイモード", selection: $viewModel.playMode) {
+                        ForEach(PlayMode.allCases, id: \.self) { mode in
+                            Text(mode.displayName).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: 200)
+                }
             }
             .font(.subheadline)
             .padding(12)

@@ -48,6 +48,14 @@ class GameProgressViewModel {
         phase == .showTopic
     }
 
+    /// 「決定」ボタンを押せるか。ノーマルは常に true（並び替え結果が常に3要素）。
+    /// ハードは選択された3スロットが全て埋まっていることが条件。
+    var canSubmitRanking: Bool {
+        guard case .rankingInput(_, false) = phase else { return false }
+        let needed = currentTopic?.playMode.rankSlotCount ?? 3
+        return rankingInput.count == needed && rankingInput.allSatisfy { !$0.isEmpty }
+    }
+
     init(
         session: GameSession,
         topicProvider: TopicProviding = TopicService(),
@@ -66,6 +74,7 @@ class GameProgressViewModel {
             count: session.totalTurns,
             genre: session.config.genre,
             difficulty: session.config.difficulty,
+            playMode: session.config.playMode,
             excluding: excluded
         )
         loadTopic()
@@ -83,6 +92,7 @@ class GameProgressViewModel {
 
     func submitRanking() {
         guard case .rankingInput(let playerIndex, false) = phase else { return }
+        guard canSubmitRanking else { return }
 
         if playerIndex == 0 {
             GameEngine.applyTargetRanking(ranking: rankingInput, to: &session)
@@ -134,6 +144,7 @@ class GameProgressViewModel {
             count: 1,
             genre: session.config.genre,
             difficulty: session.config.difficulty,
+            playMode: session.config.playMode,
             excluding: excluded
         )
 

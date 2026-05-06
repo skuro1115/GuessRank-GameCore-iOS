@@ -10,6 +10,7 @@ class GameSetupViewModel {
     var cycleCount: Int = 1
     var playerCount: Int = 3
     var playerNames: [String] = ["", "", ""]
+    var playMode: PlayMode = .normal
 
     var totalTurns: Int { cycleCount * playerCount }
     var estimatedSeconds: Int { totalTurns * 30 }
@@ -53,7 +54,8 @@ class GameSetupViewModel {
             genre: genre,
             difficulty: difficulty,
             cycleCount: cycleCount,
-            playerCount: playerCount
+            playerCount: playerCount,
+            playMode: playMode
         )
         let players = playerNames.enumerated().map { index, name in
             Player(name: sanitize(name), order: index)

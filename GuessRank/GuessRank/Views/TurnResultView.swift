@@ -19,8 +19,8 @@ struct TurnResultView: View {
     /// Phase 3: 正誤ハイライト
     @State private var showMatches = false
 
-    private static let choiceColors: [Color] = [.red, .blue, .green]
-    private static let choiceLabels = ["A", "B", "C"]
+    private static let choiceColors: [Color] = [.red, .blue, .green, .orange, .purple, .pink]
+    private static let choiceLabels = ["A", "B", "C", "D", "E", "F"]
 
     // MARK: - Computed helpers
 
@@ -226,14 +226,20 @@ struct TurnResultView: View {
     // MARK: - Choice legend
 
     private func choiceLegend(choices: [String]) -> some View {
-        HStack(spacing: 12) {
+        // Choices may be 3 (normal) or 6 (hard); use a flow that wraps when crowded.
+        let columnCount = choices.count > 3 ? 3 : choices.count
+        return LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: columnCount),
+            alignment: .leading,
+            spacing: 4
+        ) {
             ForEach(Array(choices.enumerated()), id: \.offset) { i, choice in
                 HStack(spacing: 4) {
-                    Text(Self.choiceLabels[i])
+                    Text(Self.choiceLabels[i % Self.choiceLabels.count])
                         .font(.system(size: 11, weight: .bold))
                         .foregroundStyle(.white)
                         .frame(width: 20, height: 20)
-                        .background(Self.choiceColors[i].opacity(0.8))
+                        .background(Self.choiceColors[i % Self.choiceColors.count].opacity(0.8))
                         .clipShape(Circle())
                     Text(choice)
                         .font(.caption)
@@ -272,8 +278,8 @@ struct TurnResultView: View {
 
     private func choiceCircle(choice: String, originalChoices: [String], matchState: MatchState) -> some View {
         let index = originalChoices.firstIndex(of: choice) ?? 0
-        let color = Self.choiceColors[index]
-        let label = Self.choiceLabels[index]
+        let color = Self.choiceColors[index % Self.choiceColors.count]
+        let label = Self.choiceLabels[index % Self.choiceLabels.count]
 
         return Text(label)
             .font(.system(size: 14, weight: .bold))

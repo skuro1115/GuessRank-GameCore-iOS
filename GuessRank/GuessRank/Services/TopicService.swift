@@ -187,19 +187,57 @@ struct TopicService: TopicProviding {
         Topic(id: "random_h05", question: "子供に伝えたいことは？", choices: ["努力の大切さ", "人への思いやり", "自分らしさ"], genre: .random, difficulty: .hard),
         Topic(id: "random_h06", question: "死ぬまでにしたいことは？", choices: ["世界一周", "本を出す", "家族と過ごす"], genre: .random, difficulty: .hard),
         Topic(id: "random_h07", question: "AI に任せたいことは？", choices: ["家事", "仕事", "勉強"], genre: .random, difficulty: .hard),
+
+        // ━━━━━━━━━━ ハードモード（選択肢6つ・上位3つを当てる） ━━━━━━━━━━
+        // food (hard mode)
+        Topic(id: "food_hm01", question: "夕食に食べたいのは？", choices: ["寿司", "焼肉", "ラーメン", "カレー", "パスタ", "丼もの"], genre: .food, difficulty: .normal, playMode: .hard),
+        Topic(id: "food_hm02", question: "おやつに食べたいのは？", choices: ["チョコ", "アイス", "ポテチ", "クッキー", "せんべい", "ケーキ"], genre: .food, difficulty: .normal, playMode: .hard),
+        Topic(id: "food_hm03", question: "コンビニで買うなら？", choices: ["おにぎり", "サンドイッチ", "肉まん", "サラダ", "唐揚げ", "スイーツ"], genre: .food, difficulty: .normal, playMode: .hard),
+
+        // hobby (hard mode)
+        Topic(id: "hobby_hm01", question: "休日にやりたいのは？", choices: ["映画", "ゲーム", "散歩", "読書", "ショッピング", "カフェ巡り"], genre: .hobby, difficulty: .normal, playMode: .hard),
+        Topic(id: "hobby_hm02", question: "新しく始めたい趣味は？", choices: ["筋トレ", "楽器", "絵を描く", "料理", "プログラミング", "写真"], genre: .hobby, difficulty: .normal, playMode: .hard),
+        Topic(id: "hobby_hm03", question: "旅行で行きたいのは？", choices: ["温泉", "テーマパーク", "海外", "山", "島", "都会"], genre: .hobby, difficulty: .normal, playMode: .hard),
+
+        // school (hard mode)
+        Topic(id: "school_hm01", question: "学校で楽しかった時間は？", choices: ["昼休み", "放課後", "体育", "音楽", "図工", "給食"], genre: .school, difficulty: .normal, playMode: .hard),
+        Topic(id: "school_hm02", question: "学校行事で好きなのは？", choices: ["文化祭", "体育祭", "修学旅行", "遠足", "卒業式", "球技大会"], genre: .school, difficulty: .normal, playMode: .hard),
+        Topic(id: "school_hm03", question: "授業で得意だったのは？", choices: ["国語", "数学", "英語", "理科", "社会", "体育"], genre: .school, difficulty: .normal, playMode: .hard),
+
+        // love (hard mode)
+        Topic(id: "love_hm01", question: "デートで行きたい場所は？", choices: ["カフェ", "水族館", "映画館", "公園", "夜景", "遊園地"], genre: .love, difficulty: .normal, playMode: .hard),
+        Topic(id: "love_hm02", question: "好きなタイプは？", choices: ["優しい", "面白い", "頼れる", "賢い", "おしゃれ", "ミステリアス"], genre: .love, difficulty: .normal, playMode: .hard),
+        Topic(id: "love_hm03", question: "プレゼントで嬉しいのは？", choices: ["手紙", "アクセサリー", "花束", "体験", "食事", "サプライズ"], genre: .love, difficulty: .normal, playMode: .hard),
+
+        // personality (hard mode)
+        Topic(id: "pers_hm01", question: "ストレス発散法は？", choices: ["寝る", "食べる", "話す", "運動", "買い物", "一人時間"], genre: .personality, difficulty: .normal, playMode: .hard),
+        Topic(id: "pers_hm02", question: "自分の長所は？", choices: ["真面目", "明るい", "気配り", "行動力", "冷静", "創造力"], genre: .personality, difficulty: .normal, playMode: .hard),
+        Topic(id: "pers_hm03", question: "大事にしたい価値観は？", choices: ["自由", "安定", "挑戦", "愛", "成長", "誠実"], genre: .personality, difficulty: .normal, playMode: .hard),
+
+        // hypothetical (hard mode)
+        Topic(id: "hypo_hm01", question: "超能力をもらえるなら？", choices: ["瞬間移動", "読心術", "未来予知", "透明化", "時間停止", "空を飛ぶ"], genre: .hypothetical, difficulty: .normal, playMode: .hard),
+        Topic(id: "hypo_hm02", question: "無人島に持っていくなら？", choices: ["ナイフ", "ライター", "本", "水", "ロープ", "友達"], genre: .hypothetical, difficulty: .normal, playMode: .hard),
+        Topic(id: "hypo_hm03", question: "1億円当たったら？", choices: ["旅行", "貯金", "投資", "家を買う", "家族にあげる", "仕事を辞める"], genre: .hypothetical, difficulty: .normal, playMode: .hard),
+
+        // random (hard mode)
+        Topic(id: "random_hm01", question: "もらって嬉しいのは？", choices: ["花束", "お菓子", "手紙", "本", "アクセサリー", "現金"], genre: .random, difficulty: .normal, playMode: .hard),
+        Topic(id: "random_hm02", question: "住むなら？", choices: ["都会", "田舎", "郊外", "海沿い", "山の中", "海外"], genre: .random, difficulty: .normal, playMode: .hard),
+        Topic(id: "random_hm03", question: "人生で大切なのは？", choices: ["健康", "お金", "人間関係", "やりがい", "時間", "自由"], genre: .random, difficulty: .normal, playMode: .hard),
     ]
 
     func pickTopics(
         count: Int,
         genre: Genre,
         difficulty: Difficulty,
+        playMode: PlayMode,
         excluding: Set<String>
     ) -> [Topic] {
+        let modePool = Self.allTopics.filter { $0.playMode == playMode }
         let basePool: [Topic]
         if genre == .random {
-            basePool = Self.allTopics
+            basePool = modePool
         } else {
-            basePool = Self.allTopics.filter { $0.genre == genre }
+            basePool = modePool.filter { $0.genre == genre }
         }
 
         let filtered = basePool.filter { !excluding.contains($0.id) }
