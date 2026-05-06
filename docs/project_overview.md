@@ -2,7 +2,7 @@
 
 ## アプリ名
 
-三連単（Sanrentann）（仮）
+GuessRank（仮）
 
 ## コンセプト
 

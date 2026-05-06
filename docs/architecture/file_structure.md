@@ -3,10 +3,10 @@
 ## MVP構成
 
 ```
-Sanrentann/
+GuessRank/
 ├── docs/                          # ドキュメント（この中）
-├── Sanrentann/
-│   ├── SanrentannApp.swift        # エントリポイント
+├── GuessRank/
+│   ├── GuessRankApp.swift        # エントリポイント
 │   │
 │   ├── Models/                    # データモデル
 │   │   ├── Player.swift
@@ -35,12 +35,12 @@ Sanrentann/
 │   └── Utils/                     # ユーティリティ
 │       └── RankingUtils.swift
 │
-├── SanrentannTests/               # テスト
+├── GuessRankTests/               # テスト
 │   ├── Models/
 │   ├── ViewModels/
 │   └── Services/
 │
-└── Sanrentann.xcodeproj
+└── GuessRank.xcodeproj
 ```
 
 ## 拡張ルール
@@ -50,7 +50,7 @@ Sanrentann/
 ### Feature-First 構成（将来）
 
 ```
-Sanrentann/
+GuessRank/
 ├── Features/
 │   ├── GameSetup/
 │   │   ├── Models/
@@ -65,7 +65,7 @@ Sanrentann/
 │   ├── Models/
 │   ├── Services/
 │   └── Utils/
-└── SanrentannApp.swift
+└── GuessRankApp.swift
 ```
 
 ## 画面フロー
