@@ -14,18 +14,30 @@ struct ContentView: View {
     @State private var gameViewModel: GameProgressViewModel?
     @State private var endSnapshot: GameSessionSnapshot?
     @State private var historyStore = GameHistoryStore()
+    @State private var topicHistoryStore = TopicHistoryStore()
+    @State private var topicBlockStore = TopicBlockStore()
 
     var body: some View {
         NavigationStack {
             switch screen {
             case .settings:
-                GameSettingsView(viewModel: setupViewModel, onStart: {
-                    let session = setupViewModel.buildSession()
-                    gameViewModel = GameProgressViewModel(session: session)
-                    screen = .game
-                }, onShowHistory: {
-                    screen = .history
-                })
+                GameSettingsView(
+                    viewModel: setupViewModel,
+                    topicHistoryStore: topicHistoryStore,
+                    topicBlockStore: topicBlockStore,
+                    onStart: {
+                        let session = setupViewModel.buildSession()
+                        gameViewModel = GameProgressViewModel(
+                            session: session,
+                            topicHistory: topicHistoryStore,
+                            topicBlock: topicBlockStore
+                        )
+                        screen = .game
+                    },
+                    onShowHistory: {
+                        screen = .history
+                    }
+                )
 
             case .game:
                 if let vm = gameViewModel {

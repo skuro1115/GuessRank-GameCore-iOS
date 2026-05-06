@@ -2,10 +2,13 @@ import SwiftUI
 
 struct GameSettingsView: View {
     @Bindable var viewModel: GameSetupViewModel
+    var topicHistoryStore: TopicHistoryStore
+    var topicBlockStore: TopicBlockStore
     var onStart: () -> Void
     var onShowHistory: () -> Void
 
     @FocusState private var focusedIndex: Int?
+    @State private var showTopicSettings = false
 
     var body: some View {
         VStack(spacing: 12) {
@@ -45,6 +48,22 @@ struct GameSettingsView: View {
                     Spacer()
                     Picker("難易度", selection: $viewModel.difficulty) {
                         ForEach(Difficulty.allCases, id: \.self) { d in Text(d.displayName).tag(d) }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: 200)
+                }
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("プレイモード")
+                        Text(viewModel.playMode.shortDescription)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Picker("プレイモード", selection: $viewModel.playMode) {
+                        ForEach(PlayMode.allCases, id: \.self) { mode in
+                            Text(mode.displayName).tag(mode)
+                        }
                     }
                     .pickerStyle(.segmented)
                     .frame(maxWidth: 200)
@@ -128,9 +147,24 @@ struct GameSettingsView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showTopicSettings = true
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
                 Button { onShowHistory() } label: {
                     Image(systemName: "clock.arrow.circlepath")
                 }
+            }
+        }
+        .sheet(isPresented: $showTopicSettings) {
+            TopicSettingsView(
+                topicHistoryStore: topicHistoryStore,
+                topicBlockStore: topicBlockStore
+            ) {
+                showTopicSettings = false
             }
         }
         .onTapGesture { focusedIndex = nil }

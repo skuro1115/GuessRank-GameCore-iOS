@@ -8,12 +8,16 @@ struct RankingInputView: View {
         viewModel.isTargetInput ? .orange : .cyan
     }
 
+    private var isHardMode: Bool {
+        viewModel.currentTopic?.playMode == .hard
+    }
+
     var body: some View {
         ZStack {
             accentColor.opacity(0.06)
                 .ignoresSafeArea()
 
-            VStack(spacing: 24) {
+            VStack(spacing: 18) {
                 if let player = viewModel.currentInputPlayer {
                     if viewModel.isTargetInput {
                         Label("\(player.name) の好みの順位", systemImage: "crown.fill")
@@ -46,11 +50,23 @@ struct RankingInputView: View {
                         .clipShape(Capsule())
                 }
 
-                RankingEditor(
-                    items: $viewModel.rankingInput,
-                    accentColor: accentColor,
-                    originalChoices: viewModel.currentTopic?.choices ?? []
-                )
+                if isHardMode {
+                    Text("選択肢から上位3つを選んでください")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    HardRankingEditor(
+                        ranking: $viewModel.rankingInput,
+                        choices: viewModel.currentTopic?.choices ?? [],
+                        accentColor: accentColor
+                    )
+                } else {
+                    RankingEditor(
+                        items: $viewModel.rankingInput,
+                        accentColor: accentColor,
+                        originalChoices: viewModel.currentTopic?.choices ?? []
+                    )
+                }
 
                 Spacer()
 
@@ -61,11 +77,12 @@ struct RankingInputView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(accentColor)
+                        .background(viewModel.canSubmitRanking ? accentColor : Color.gray)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .shadow(color: accentColor.opacity(0.3), radius: 8, y: 4)
+                        .shadow(color: accentColor.opacity(viewModel.canSubmitRanking ? 0.3 : 0), radius: 8, y: 4)
                 }
+                .disabled(!viewModel.canSubmitRanking)
             }
             .padding()
         }

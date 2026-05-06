@@ -4,7 +4,11 @@ import SwiftUI
 struct TopicView: View {
     let viewModel: GameProgressViewModel
 
-    private let choiceColors: [Color] = [.red, .blue, .green]
+    private let choiceColors: [Color] = [.red, .blue, .green, .orange, .purple, .pink]
+    private let choiceLabels = ["A", "B", "C", "D", "E", "F"]
+
+    @State private var showBlockReasonSheet = false
+    @State private var showBlockedFeedback = false
 
     var body: some View {
         ZStack {
@@ -42,28 +46,75 @@ struct TopicView: View {
                         .font(.system(size: 28, weight: .bold))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
+                        .contextMenu {
+                            ForEach(TopicBlockReason.allCases, id: \.self) { reason in
+                                Button {
+                                    viewModel.blockCurrentTopic(reason: reason)
+                                    showBlockedFeedback = true
+                                } label: {
+                                    Label("ブロック: \(reason.displayName)", systemImage: "hand.raised")
+                                }
+                            }
+                            Button(role: .destructive) {
+                                viewModel.blockCurrentTopic(reason: nil)
+                                showBlockedFeedback = true
+                            } label: {
+                                Label("理由なしでブロック", systemImage: "hand.raised.slash")
+                            }
+                        }
 
                     // Choices
-                    VStack(spacing: 12) {
-                        ForEach(Array(topic.choices.enumerated()), id: \.offset) { index, choice in
-                            HStack(spacing: 12) {
-                                Text(["A", "B", "C"][index])
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(.white)
-                                    .frame(width: 36, height: 36)
-                                    .background(choiceColors[index].opacity(0.8))
-                                    .clipShape(Circle())
+                    if topic.playMode == .hard {
+                        // 6 choices in a 2-column grid for compact display
+                        LazyVGrid(
+                            columns: [GridItem(.flexible()), GridItem(.flexible())],
+                            spacing: 8
+                        ) {
+                            ForEach(Array(topic.choices.enumerated()), id: \.offset) { index, choice in
+                                HStack(spacing: 8) {
+                                    Text(choiceLabels[index % choiceLabels.count])
+                                        .font(.subheadline)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(.white)
+                                        .frame(width: 26, height: 26)
+                                        .background(choiceColors[index % choiceColors.count].opacity(0.8))
+                                        .clipShape(Circle())
 
-                                Text(choice)
-                                    .font(.title3)
-                                    .fontWeight(.medium)
+                                    Text(choice)
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                        .lineLimit(2)
 
-                                Spacer()
+                                    Spacer(minLength: 0)
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 12)
+                                .background(.ultraThickMaterial)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
-                            .padding()
-                            .background(.ultraThickMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    } else {
+                        VStack(spacing: 12) {
+                            ForEach(Array(topic.choices.enumerated()), id: \.offset) { index, choice in
+                                HStack(spacing: 12) {
+                                    Text(choiceLabels[index % choiceLabels.count])
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(.white)
+                                        .frame(width: 36, height: 36)
+                                        .background(choiceColors[index % choiceColors.count].opacity(0.8))
+                                        .clipShape(Circle())
+
+                                    Text(choice)
+                                        .font(.title3)
+                                        .fontWeight(.medium)
+
+                                    Spacer()
+                                }
+                                .padding()
+                                .background(.ultraThickMaterial)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
                         }
                     }
                 }
@@ -108,6 +159,25 @@ struct TopicView: View {
                 }
             }
             .padding()
+
+            if showBlockedFeedback {
+                VStack {
+                    Text("お題をブロックしました")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Capsule())
+                        .padding(.top, 60)
+                    Spacer()
+                }
+                .transition(.opacity)
+                .task {
+                    try? await Task.sleep(nanoseconds: 1_500_000_000)
+                    withAnimation { showBlockedFeedback = false }
+                }
+            }
         }
     }
 }

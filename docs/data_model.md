@@ -23,6 +23,7 @@
 | difficulty | Difficulty | 難易度（お題データプールのフィルタ条件） |
 | cycleCount | Int | サイクル数 |
 | playerCount | Int | 人数 |
+| playMode | PlayMode | プレイモード（normal=3択 / hard=6択上位3つ） |
 
 ### Genre enum
 
@@ -40,6 +41,13 @@
 | normal | 普通 |
 | hard | 難しい |
 
+### PlayMode enum
+
+| 値 | 選択肢数 | 予想する数 | 入力方式 |
+|---|---|---|---|
+| normal | 3 | 全順位（3つ） | ドラッグで並び替え |
+| hard | 6 | 上位3つ（順位付き） | タップで6→3選択 |
+
 > サイクル数の定義: 1サイクル = 全員が1回ずつ出題。総ターン数 = サイクル数 × 人数
 
 ---
@@ -52,9 +60,10 @@
 |---|---|---|
 | id | String | 一意識別子 |
 | question | String | 質問文（例:「昼に食べたいのは？」） |
-| choices | [String] | 選択肢（3つ固定） |
+| choices | [String] | 選択肢（normal=3, hard=6） |
 | genre | Genre | ジャンル |
 | difficulty | Difficulty | 難易度 |
+| playMode | PlayMode | このお題が属するモード（normal / hard） |
 
 > お題はプレイヤーが入力するものではなく、データプールからランダムに選出される
 

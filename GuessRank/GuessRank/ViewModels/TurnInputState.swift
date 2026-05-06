@@ -14,7 +14,7 @@ class TurnInputState {
 
     func startTargetInput() {
         guard let topic = currentTopic else { return }
-        rankingInput = topic.choices
+        rankingInput = initialRanking(for: topic)
         phase = .rankingInput(playerIndex: 0, isCovered: true)
     }
 
@@ -30,10 +30,21 @@ class TurnInputState {
 
         if nextPlayerIndex < totalInputPlayers {
             guard let topic = currentTopic else { return }
-            rankingInput = topic.choices
+            rankingInput = initialRanking(for: topic)
             phase = .rankingInput(playerIndex: nextPlayerIndex, isCovered: true)
         } else {
             phase = .showResult
+        }
+    }
+
+    /// 入力初期値: ノーマルは選択肢そのまま並べた状態（ドラッグで並び替える）。
+    /// ハードは未選択（空配列）から開始し、ユーザーが3つを選んでスロットに入れる。
+    private func initialRanking(for topic: Topic) -> [String] {
+        switch topic.playMode {
+        case .normal:
+            return topic.choices
+        case .hard:
+            return []
         }
     }
 }

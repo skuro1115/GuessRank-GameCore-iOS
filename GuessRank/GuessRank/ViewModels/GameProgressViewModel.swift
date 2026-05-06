@@ -8,6 +8,8 @@ class GameProgressViewModel {
     private var topics: [Topic] = []
     private var usedTopicIds: Set<String> = []
     private let topicProvider: TopicProviding
+    private let topicHistory: TopicHistoryStore?
+    private let topicBlock: TopicBlockStore?
 
     // MARK: - Convenience accessors
 
@@ -46,13 +48,34 @@ class GameProgressViewModel {
         phase == .showTopic
     }
 
-    init(session: GameSession, topicProvider: TopicProviding = TopicService()) {
+    /// 「決定」ボタンを押せるか。ノーマルは常に true（並び替え結果が常に3要素）。
+    /// ハードは選択された3スロットが全て埋まっていることが条件。
+    var canSubmitRanking: Bool {
+        guard case .rankingInput(_, false) = phase else { return false }
+        let needed = currentTopic?.playMode.rankSlotCount ?? 3
+        return rankingInput.count == needed && rankingInput.allSatisfy { !$0.isEmpty }
+    }
+
+    init(
+        session: GameSession,
+        topicProvider: TopicProviding = TopicService(),
+        topicHistory: TopicHistoryStore? = nil,
+        topicBlock: TopicBlockStore? = nil
+    ) {
         self.session = session
         self.topicProvider = topicProvider
+        self.topicHistory = topicHistory
+        self.topicBlock = topicBlock
+        var excluded: Set<String> = topicHistory?.playedIds ?? []
+        if let blocked = topicBlock?.blockedIds {
+            excluded.formUnion(blocked)
+        }
         self.topics = topicProvider.pickTopics(
             count: session.totalTurns,
             genre: session.config.genre,
-            difficulty: session.config.difficulty
+            difficulty: session.config.difficulty,
+            playMode: session.config.playMode,
+            excluding: excluded
         )
         loadTopic()
     }
@@ -69,6 +92,7 @@ class GameProgressViewModel {
 
     func submitRanking() {
         guard case .rankingInput(let playerIndex, false) = phase else { return }
+        guard canSubmitRanking else { return }
 
         if playerIndex == 0 {
             GameEngine.applyTargetRanking(ranking: rankingInput, to: &session)
@@ -88,7 +112,18 @@ class GameProgressViewModel {
 
         if case .showResult = phase {
             GameEngine.completeTurn(session: &session)
+            if let topicId = currentTopic?.id {
+                topicHistory?.record(topicId)
+            }
         }
+    }
+
+    /// 現在のお題をブロック登録してから次のお題に差し替える。
+    /// `phase == .showTopic` のときのみ実行可能（出題前の差し替えだけを許可）。
+    func blockCurrentTopic(reason: TopicBlockReason? = nil) {
+        guard canPass, let current = currentTopic else { return }
+        topicBlock?.block(current.id, reason: reason)
+        passTopic()
     }
 
     func passTopic() {
@@ -98,14 +133,22 @@ class GameProgressViewModel {
             usedTopicIds.insert(current.id)
         }
 
-        let allUsed = usedTopicIds.union(topics.map { $0.id })
+        var excluded = usedTopicIds.union(topics.map { $0.id })
+        if let history = topicHistory {
+            excluded.formUnion(history.playedIds)
+        }
+        if let block = topicBlock {
+            excluded.formUnion(block.blockedIds)
+        }
         let candidates = topicProvider.pickTopics(
-            count: 10,
+            count: 1,
             genre: session.config.genre,
-            difficulty: session.config.difficulty
-        ).filter { !allUsed.contains($0.id) }
+            difficulty: session.config.difficulty,
+            playMode: session.config.playMode,
+            excluding: excluded
+        )
 
-        guard let replacement = candidates.first else { return }
+        guard let replacement = candidates.first, !excluded.contains(replacement.id) else { return }
 
         let topicIndex = session.currentTurnIndex
         topics[topicIndex] = replacement
