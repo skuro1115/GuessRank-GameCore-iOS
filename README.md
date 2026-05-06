@@ -38,7 +38,7 @@ swift test
 ## ディレクトリ構成
 
 ```
-sanrentann/
+GuessRank/
 ├── README.md
 ├── docs/                           # ドキュメント（SSOT）
 │   ├── game_rules.md               #   ゲームルール
