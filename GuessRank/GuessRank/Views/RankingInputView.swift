@@ -83,6 +83,7 @@ struct RankingInputView: View {
                         .shadow(color: accentColor.opacity(viewModel.canSubmitRanking ? 0.3 : 0), radius: 8, y: 4)
                 }
                 .disabled(!viewModel.canSubmitRanking)
+                .keyboardShortcut(.return, modifiers: [])
             }
             .padding()
         }

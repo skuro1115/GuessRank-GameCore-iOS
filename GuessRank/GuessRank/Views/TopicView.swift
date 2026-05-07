@@ -7,8 +7,7 @@ struct TopicView: View {
     private let choiceColors: [Color] = [.red, .blue, .green, .orange, .purple, .pink]
     private let choiceLabels = ["A", "B", "C", "D", "E", "F"]
 
-    @State private var showBlockReasonSheet = false
-    @State private var showBlockedFeedback = false
+    @State private var feedbackMessage: String?
 
     var body: some View {
         ZStack {
@@ -46,22 +45,6 @@ struct TopicView: View {
                         .font(.system(size: 28, weight: .bold))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
-                        .contextMenu {
-                            ForEach(TopicBlockReason.allCases, id: \.self) { reason in
-                                Button {
-                                    viewModel.blockCurrentTopic(reason: reason)
-                                    showBlockedFeedback = true
-                                } label: {
-                                    Label("ブロック: \(reason.displayName)", systemImage: "hand.raised")
-                                }
-                            }
-                            Button(role: .destructive) {
-                                viewModel.blockCurrentTopic(reason: nil)
-                                showBlockedFeedback = true
-                            } label: {
-                                Label("理由なしでブロック", systemImage: "hand.raised.slash")
-                            }
-                        }
 
                     // Choices
                     if topic.playMode == .hard {
@@ -156,13 +139,69 @@ struct TopicView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .shadow(color: .orange.opacity(0.3), radius: 8, y: 4)
                     }
+                    .keyboardShortcut(.return, modifiers: [])
                 }
             }
             .padding()
 
-            if showBlockedFeedback {
+            // Top-right feedback buttons (👍 / ⋯)
+            VStack {
+                HStack {
+                    Spacer()
+                    HStack(spacing: 4) {
+                        Button {
+                            viewModel.toggleLikeCurrentTopic()
+                            feedbackMessage = viewModel.isCurrentTopicLiked
+                                ? "面白いお題として記録しました"
+                                : "「面白い」を取り消しました"
+                        } label: {
+                            Image(systemName: viewModel.isCurrentTopicLiked
+                                ? "hand.thumbsup.fill"
+                                : "hand.thumbsup")
+                                .font(.title3)
+                                .foregroundStyle(viewModel.isCurrentTopicLiked ? .orange : .secondary)
+                                .frame(width: 40, height: 40)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Circle())
+                        }
+                        .accessibilityLabel(viewModel.isCurrentTopicLiked ? "面白いを取り消す" : "面白いお題として記録")
+                        .disabled(viewModel.currentTopic == nil)
+
+                        Menu {
+                            ForEach(TopicBlockReason.allCases, id: \.self) { reason in
+                                Button {
+                                    viewModel.blockCurrentTopic(reason: reason)
+                                    feedbackMessage = "お題をブロックしました（\(reason.displayName)）"
+                                } label: {
+                                    Label("ブロック: \(reason.displayName)", systemImage: "hand.raised")
+                                }
+                            }
+                            Button(role: .destructive) {
+                                viewModel.blockCurrentTopic(reason: nil)
+                                feedbackMessage = "お題をブロックしました"
+                            } label: {
+                                Label("理由なしでブロック", systemImage: "hand.raised.slash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis")
+                                .font(.title3)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 40, height: 40)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Circle())
+                        }
+                        .accessibilityLabel("その他のFB")
+                        .disabled(viewModel.currentTopic == nil)
+                    }
+                    .padding(.trailing, 16)
+                    .padding(.top, 8)
+                }
+                Spacer()
+            }
+
+            if let message = feedbackMessage {
                 VStack {
-                    Text("お題をブロックしました")
+                    Text(message)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .padding(.horizontal, 16)
@@ -173,9 +212,10 @@ struct TopicView: View {
                     Spacer()
                 }
                 .transition(.opacity)
-                .task {
+                .id(message)
+                .task(id: message) {
                     try? await Task.sleep(nanoseconds: 1_500_000_000)
-                    withAnimation { showBlockedFeedback = false }
+                    withAnimation { feedbackMessage = nil }
                 }
             }
         }

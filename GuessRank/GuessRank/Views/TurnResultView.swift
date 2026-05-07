@@ -84,6 +84,7 @@ struct TurnResultView: View {
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
+                    .keyboardShortcut(.return, modifiers: [])
                 } else {
                     Button {
                         viewModel.advanceToNextTurn()
@@ -96,6 +97,7 @@ struct TurnResultView: View {
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
+                    .keyboardShortcut(.return, modifiers: [])
                 }
             }
             .padding()

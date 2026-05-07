@@ -64,6 +64,7 @@ struct CoverView: View {
                             radius: 8, y: 4
                         )
                 }
+                .keyboardShortcut(.return, modifiers: [])
             }
             .padding()
         }

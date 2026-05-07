@@ -9,7 +9,7 @@ class GameProgressViewModel {
     private var usedTopicIds: Set<String> = []
     private let topicProvider: TopicProviding
     private let topicHistory: TopicHistoryStore?
-    private let topicBlock: TopicBlockStore?
+    private let topicFeedback: TopicFeedbackStore?
 
     // MARK: - Convenience accessors
 
@@ -60,14 +60,14 @@ class GameProgressViewModel {
         session: GameSession,
         topicProvider: TopicProviding = TopicService(),
         topicHistory: TopicHistoryStore? = nil,
-        topicBlock: TopicBlockStore? = nil
+        topicFeedback: TopicFeedbackStore? = nil
     ) {
         self.session = session
         self.topicProvider = topicProvider
         self.topicHistory = topicHistory
-        self.topicBlock = topicBlock
+        self.topicFeedback = topicFeedback
         var excluded: Set<String> = topicHistory?.playedIds ?? []
-        if let blocked = topicBlock?.blockedIds {
+        if let blocked = topicFeedback?.blockedIds {
             excluded.formUnion(blocked)
         }
         self.topics = topicProvider.pickTopics(
@@ -122,8 +122,24 @@ class GameProgressViewModel {
     /// `phase == .showTopic` のときのみ実行可能（出題前の差し替えだけを許可）。
     func blockCurrentTopic(reason: TopicBlockReason? = nil) {
         guard canPass, let current = currentTopic else { return }
-        topicBlock?.block(current.id, reason: reason)
+        topicFeedback?.block(current.id, reason: reason)
         passTopic()
+    }
+
+    /// 現在のお題に「面白い」FBを付ける／外す（出題前のみ）。
+    /// 同じお題にFBが付いていても続行できるよう、ここではお題を差し替えない。
+    func toggleLikeCurrentTopic() {
+        guard canPass, let current = currentTopic, let store = topicFeedback else { return }
+        if store.isLiked(current.id) {
+            store.unlike(current.id)
+        } else {
+            store.like(current.id)
+        }
+    }
+
+    var isCurrentTopicLiked: Bool {
+        guard let id = currentTopic?.id else { return false }
+        return topicFeedback?.isLiked(id) ?? false
     }
 
     func passTopic() {
@@ -137,8 +153,8 @@ class GameProgressViewModel {
         if let history = topicHistory {
             excluded.formUnion(history.playedIds)
         }
-        if let block = topicBlock {
-            excluded.formUnion(block.blockedIds)
+        if let feedback = topicFeedback {
+            excluded.formUnion(feedback.blockedIds)
         }
         let candidates = topicProvider.pickTopics(
             count: 1,
