@@ -47,6 +47,9 @@
 | [features/topic_history/](features/topic_history/) | お題履歴・重複回避 | 実装済み |
 | [features/topic_feedback/](features/topic_feedback/) | お題フィードバック（ブロック / 面白い / エクスポート） | 実装済み |
 | [features/play_modes/](features/play_modes/) | プレイモード（normal / hard） | 実装済み |
+| [features/analytics/](features/analytics/) | 分析機能（相性・お題サプライズ） | 実装済み |
+| [features/feature_flags/](features/feature_flags/) | 機能フラグ基盤（ビルド時 / 実行時） | 実装済み |
+| [features/dev_mode/](features/dev_mode/) | 開発者モード（QuickStart 他、DEBUG限定） | 実装済み |
 | [features/_template/](features/_template/) | 新機能追加用テンプレート | — |
 
 ### プロセス・ガイド
@@ -63,11 +66,8 @@
 |---|---|
 | [future/roadmap.md](future/roadmap.md) | **優先順位ロードマップ（依存関係 / 着手順）** |
 | [future/multiplayer_design.md](future/multiplayer_design.md) | 複数台通信設計（ネット / Bluetooth） |
-| [future/analytics_design.md](future/analytics_design.md) | 分析・価値観可視化設計 |
 | [future/monetization.md](future/monetization.md) | 課金設計 |
-| [future/remote_topics.md](future/remote_topics.md) | お題リモート配信 |
-| [future/feature_flags.md](future/feature_flags.md) | 機能フラグ（ビルド時 / 起動時 / 実行時 / リモート） |
-| [future/dev_mode.md](future/dev_mode.md) | 開発者モード（クイックスタート・デバッグオーバーレイ・データリセット等） |
+| [future/remote_topics.md](future/remote_topics.md) | お題リモート配信（保留中） |
 
 ---
 
