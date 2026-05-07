@@ -274,22 +274,22 @@ final class GameProgressViewModelTests: XCTestCase {
         let tempDir = makeTempDir()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let block = TopicBlockStore(directory: tempDir)
-        let vm = makeViewModel(playerNames: ["A", "B"], block: block)
+        let feedback = TopicFeedbackStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], feedback: feedback)
         let topic = try XCTUnwrap(vm.currentTopic)
 
         vm.blockCurrentTopic(reason: .boring)
 
-        XCTAssertTrue(block.isBlocked(topic.id))
-        XCTAssertEqual(block.entries.first?.reason, .boring)
+        XCTAssertTrue(feedback.isBlocked(topic.id))
+        XCTAssertEqual(feedback.blockedEntries.first?.blockReason, .boring)
     }
 
     func test_blockCurrentTopicでお題が差し替わる() throws {
         let tempDir = makeTempDir()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let block = TopicBlockStore(directory: tempDir)
-        let vm = makeViewModel(playerNames: ["A", "B"], block: block)
+        let feedback = TopicFeedbackStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], feedback: feedback)
         let originalId = try XCTUnwrap(vm.currentTopic?.id)
 
         vm.blockCurrentTopic(reason: nil)
@@ -301,13 +301,13 @@ final class GameProgressViewModelTests: XCTestCase {
         let tempDir = makeTempDir()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let block = TopicBlockStore(directory: tempDir)
+        let feedback = TopicFeedbackStore(directory: tempDir)
         let blockedIds = Set(["mock_1", "mock_2", "mock_3"])
         for id in blockedIds {
-            block.block(id, reason: .inappropriate)
+            feedback.block(id, reason: .inappropriate)
         }
 
-        let vm = makeViewModel(playerNames: ["A", "B", "C"], cycleCount: 3, block: block)
+        let vm = makeViewModel(playerNames: ["A", "B", "C"], cycleCount: 3, feedback: feedback)
         let initialIds = Set(vm.session.turns.map { $0.topic.id })
 
         XCTAssertTrue(initialIds.isDisjoint(with: blockedIds), "ブロック済みは選ばれない")
@@ -317,14 +317,59 @@ final class GameProgressViewModelTests: XCTestCase {
         let tempDir = makeTempDir()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let block = TopicBlockStore(directory: tempDir)
-        let vm = makeViewModel(playerNames: ["A", "B"], block: block)
+        let feedback = TopicFeedbackStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], feedback: feedback)
         vm.startTargetInput()
 
-        let countBefore = block.count
+        let countBefore = feedback.blockedEntries.count
         vm.blockCurrentTopic(reason: .other)
 
-        XCTAssertEqual(block.count, countBefore, "showTopic 以外ではブロックできない")
+        XCTAssertEqual(feedback.blockedEntries.count, countBefore, "showTopic 以外ではブロックできない")
+    }
+
+    // MARK: - Topic like integration
+
+    func test_toggleLikeCurrentTopicでlike登録される() throws {
+        let tempDir = makeTempDir()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let feedback = TopicFeedbackStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], feedback: feedback)
+        let topic = try XCTUnwrap(vm.currentTopic)
+
+        XCTAssertFalse(vm.isCurrentTopicLiked)
+        vm.toggleLikeCurrentTopic()
+
+        XCTAssertTrue(feedback.isLiked(topic.id))
+        XCTAssertTrue(vm.isCurrentTopicLiked)
+    }
+
+    func test_toggleLikeCurrentTopicは2回でunlike() throws {
+        let tempDir = makeTempDir()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let feedback = TopicFeedbackStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], feedback: feedback)
+        let topic = try XCTUnwrap(vm.currentTopic)
+
+        vm.toggleLikeCurrentTopic()
+        vm.toggleLikeCurrentTopic()
+
+        XCTAssertFalse(feedback.isLiked(topic.id))
+        XCTAssertFalse(vm.isCurrentTopicLiked)
+    }
+
+    func test_likeしてもお題は差し替わらない() throws {
+        let tempDir = makeTempDir()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let feedback = TopicFeedbackStore(directory: tempDir)
+        let vm = makeViewModel(playerNames: ["A", "B"], feedback: feedback)
+        let originalId = try XCTUnwrap(vm.currentTopic?.id)
+
+        vm.toggleLikeCurrentTopic()
+
+        XCTAssertEqual(vm.currentTopic?.id, originalId, "likeはお題を差し替えない")
     }
 
     // MARK: - Hard mode
@@ -405,7 +450,7 @@ final class GameProgressViewModelTests: XCTestCase {
         playerNames: [String],
         cycleCount: Int = 1,
         history: TopicHistoryStore? = nil,
-        block: TopicBlockStore? = nil
+        feedback: TopicFeedbackStore? = nil
     ) -> GameProgressViewModel {
         let config = Fixtures.config(
             cycleCount: cycleCount,
@@ -417,7 +462,7 @@ final class GameProgressViewModelTests: XCTestCase {
             session: session,
             topicProvider: MockTopicProvider(),
             topicHistory: history,
-            topicBlock: block
+            topicFeedback: feedback
         )
     }
 

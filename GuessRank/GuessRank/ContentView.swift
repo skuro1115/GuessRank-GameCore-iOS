@@ -15,7 +15,7 @@ struct ContentView: View {
     @State private var endSnapshot: GameSessionSnapshot?
     @State private var historyStore = GameHistoryStore()
     @State private var topicHistoryStore = TopicHistoryStore()
-    @State private var topicBlockStore = TopicBlockStore()
+    @State private var topicFeedbackStore = TopicFeedbackStore()
 
     var body: some View {
         NavigationStack {
@@ -24,13 +24,13 @@ struct ContentView: View {
                 GameSettingsView(
                     viewModel: setupViewModel,
                     topicHistoryStore: topicHistoryStore,
-                    topicBlockStore: topicBlockStore,
+                    topicFeedbackStore: topicFeedbackStore,
                     onStart: {
                         let session = setupViewModel.buildSession()
                         gameViewModel = GameProgressViewModel(
                             session: session,
                             topicHistory: topicHistoryStore,
-                            topicBlock: topicBlockStore
+                            topicFeedback: topicFeedbackStore
                         )
                         screen = .game
                     },

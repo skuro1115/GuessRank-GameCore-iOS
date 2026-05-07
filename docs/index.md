@@ -44,9 +44,15 @@
 | [features/game_progress/](features/game_progress/) | ゲーム進行（ターン・出題・入力・結果・スコア） | MVP |
 | [features/end_screen/](features/end_screen/) | 終了画面（最終順位・再戦） | MVP |
 | [features/topic_history/](features/topic_history/) | お題履歴・重複回避 | 実装済み |
-| [features/topic_block/](features/topic_block/) | お題ブロック | 実装済み |
+| [features/topic_feedback/](features/topic_feedback/) | お題フィードバック（ブロック / 面白い / エクスポート） | 実装済み |
 | [features/play_modes/](features/play_modes/) | プレイモード（normal / hard） | 実装済み |
 | [features/_template/](features/_template/) | 新機能追加用テンプレート | — |
+
+### プロセス・ガイド
+
+| ファイル | 内容 |
+|---|---|
+| [ai_driven_development_log.md](ai_driven_development_log.md) | AI駆動開発の編集履歴と新人エンジニア向けガイド |
 
 ### 将来拡張（Future）
 
