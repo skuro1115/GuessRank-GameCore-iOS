@@ -23,6 +23,7 @@
 | [project_overview.md](project_overview.md) | プロジェクトビジョン・KPI・ロードマップ |
 | [scope.md](scope.md) | MVPスコープ（やること / やらないこと） |
 | [data_model.md](data_model.md) | データモデル定義（SSOT） |
+| [manual_setup.md](manual_setup.md) | 手動セットアップ手順（Firebase / AdMob / IAP 等） |
 
 ### アーキテクチャ
 
@@ -56,12 +57,17 @@
 
 ### 将来拡張（Future）
 
+> 優先順位と着手予定は [future/roadmap.md](future/roadmap.md) を参照
+
 | ファイル | 内容 |
 |---|---|
+| [future/roadmap.md](future/roadmap.md) | **優先順位ロードマップ（依存関係 / 着手順）** |
 | [future/multiplayer_design.md](future/multiplayer_design.md) | 複数台通信設計（ネット / Bluetooth） |
 | [future/analytics_design.md](future/analytics_design.md) | 分析・価値観可視化設計 |
 | [future/monetization.md](future/monetization.md) | 課金設計 |
 | [future/remote_topics.md](future/remote_topics.md) | お題リモート配信 |
+| [future/feature_flags.md](future/feature_flags.md) | 機能フラグ（ビルド時 / 起動時 / 実行時 / リモート） |
+| [future/dev_mode.md](future/dev_mode.md) | 開発者モード（クイックスタート・デバッグオーバーレイ・データリセット等） |
 
 ---
 
