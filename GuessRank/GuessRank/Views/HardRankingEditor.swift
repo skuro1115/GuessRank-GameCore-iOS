@@ -136,5 +136,6 @@ struct HardRankingEditor: View {
         .buttonStyle(.plain)
         .disabled(!canTap)
         .opacity(canTap ? 1.0 : 0.5)
+        .keyboardShortcut(KeyEquivalent(Character(String(index + 1))), modifiers: [])
     }
 }

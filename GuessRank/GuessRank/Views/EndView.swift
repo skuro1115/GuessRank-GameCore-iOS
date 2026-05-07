@@ -108,6 +108,7 @@ struct EndView: View {
                 Button(action: onReplay) {
                     Label("もう1回", systemImage: "arrow.counterclockwise")
                 }
+                .keyboardShortcut(.return, modifiers: [])
             }
         }
     }

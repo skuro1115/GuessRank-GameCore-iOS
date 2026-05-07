@@ -69,6 +69,7 @@ struct GameClearView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                     .shadow(color: .orange.opacity(0.3), radius: 8, y: 4)
                 }
+                .keyboardShortcut(.return, modifiers: [])
             }
             .padding()
         }
