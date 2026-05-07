@@ -7,6 +7,7 @@ struct GameSettingsView: View {
     var onStart: () -> Void
     var onShowHistory: () -> Void
 
+    @Environment(\.featureFlags) private var featureFlags
     @FocusState private var focusedIndex: Int?
     @State private var showTopicSettings = false
 
@@ -126,6 +127,10 @@ struct GameSettingsView: View {
 
             Spacer()
 
+            if featureFlags.isEnabled(.devModeEnabled) {
+                developerSection
+            }
+
             Button(action: onStart) {
                 Text("ゲームを始める")
                     .font(.headline)
@@ -168,6 +173,41 @@ struct GameSettingsView: View {
             }
         }
         .onTapGesture { focusedIndex = nil }
+    }
+
+    @ViewBuilder
+    private var developerSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("開発者", systemImage: "hammer.fill")
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundStyle(.purple)
+
+            if featureFlags.isEnabled(.quickStartEnabled) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("クイックスタート")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    HStack(spacing: 6) {
+                        ForEach(QuickStartPreset.allPresets) { preset in
+                            Button {
+                                viewModel.applyQuickStartPreset(preset)
+                                onStart()
+                            } label: {
+                                Text(preset.displayName)
+                                    .font(.caption)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.purple)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(Color.purple.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     private func playerNameBinding(at index: Int) -> Binding<String> {
