@@ -13,7 +13,18 @@ class GameSetupViewModel {
     var playMode: PlayMode = .normal
 
     var totalTurns: Int { cycleCount * playerCount }
-    var estimatedSeconds: Int { totalTurns * 30 }
+
+    /// 1人がランキングを入力するのに要する想定時間（端末受け渡し + 覗き見防止解除 + 並び替え + submit）。
+    static let secondsPerPlayerInput: Int = 15
+    /// 1ターンあたりの結果アニメーションと次お題への切替バッファ。
+    static let secondsBetweenTurns: Int = 10
+
+    /// 想定所要時間（秒）。
+    /// 1ターン = `playerCount` 人の入力時間 + 切替バッファ。総ターン数 = `cycleCount × playerCount`。
+    var estimatedSeconds: Int {
+        let perTurn = playerCount * Self.secondsPerPlayerInput + Self.secondsBetweenTurns
+        return totalTurns * perTurn
+    }
 
     var estimatedTimeText: String {
         let minutes = estimatedSeconds / 60
