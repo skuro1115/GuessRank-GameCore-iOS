@@ -58,4 +58,46 @@ final class GameSetupViewModelTests: XCTestCase {
         vm.updatePlayerCount(2)
         XCTAssertEqual(vm.playerNames, ["A", "B"])
     }
+
+    // MARK: - Estimated time
+
+    func test_estimatedSeconds_2人1サイクル() {
+        let vm = GameSetupViewModel()
+        vm.playerCount = 2
+        vm.cycleCount = 1
+        // 1ターン = 2人 × 15秒 + 10秒 = 40秒
+        // 総ターン数 = 2 × 1 = 2
+        // 合計 = 80秒
+        XCTAssertEqual(vm.estimatedSeconds, 80)
+    }
+
+    func test_estimatedSeconds_4人1サイクル() {
+        let vm = GameSetupViewModel()
+        vm.playerCount = 4
+        vm.cycleCount = 1
+        // 1ターン = 4×15 + 10 = 70秒、総ターン4 → 280秒
+        XCTAssertEqual(vm.estimatedSeconds, 280)
+    }
+
+    func test_estimatedSeconds_6人3サイクル() {
+        let vm = GameSetupViewModel()
+        vm.playerCount = 6
+        vm.cycleCount = 3
+        // 1ターン = 6×15 + 10 = 100秒、総ターン18 → 1800秒
+        XCTAssertEqual(vm.estimatedSeconds, 1800)
+    }
+
+    func test_estimatedTimeText_秒余りなしは分のみ表示() {
+        let vm = GameSetupViewModel()
+        vm.playerCount = 6
+        vm.cycleCount = 3 // 1800秒 = 30分
+        XCTAssertEqual(vm.estimatedTimeText, "約30分")
+    }
+
+    func test_estimatedTimeText_秒余りありは分秒表示() {
+        let vm = GameSetupViewModel()
+        vm.playerCount = 4
+        vm.cycleCount = 1 // 280秒 = 4分40秒
+        XCTAssertEqual(vm.estimatedTimeText, "約4分40秒")
+    }
 }
