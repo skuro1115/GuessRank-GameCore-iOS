@@ -87,4 +87,40 @@ final class FeatureFlagStoreTests: XCTestCase {
             XCTAssertFalse(store.hasOverride(flag), "\(flag): 上書きが残っている")
         }
     }
+
+    // MARK: - Animation speed
+
+    func test_animationSpeedMultiplier_fastModeOFFは1x() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.fastModeEnabled, false)
+        XCTAssertEqual(store.animationSpeedMultiplier, 1.0)
+    }
+
+    func test_animationSpeedMultiplier_fastModeONは4x() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.fastModeEnabled, true)
+        XCTAssertEqual(store.animationSpeedMultiplier, 4.0)
+    }
+
+    func test_scaledDuration_fastModeONで4分の1() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.fastModeEnabled, true)
+        XCTAssertEqual(store.scaledDuration(2.0), 0.5, accuracy: 0.001)
+        XCTAssertEqual(store.scaledDuration(0.45), 0.1125, accuracy: 0.001)
+    }
+
+    func test_scaledDuration_fastModeOFFで等倍() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.fastModeEnabled, false)
+        XCTAssertEqual(store.scaledDuration(1.5), 1.5, accuracy: 0.001)
+    }
+
+    // MARK: - 新規フラグの defaults
+
+    func test_新規フラグもbuildDefaultが反映される() {
+        let store = FeatureFlagStore(defaults: defaults)
+        // DEBUG ビルド前提
+        XCTAssertTrue(store.isEnabled(.dataResetEnabled), "dataResetEnabled は DEBUG で true")
+        XCTAssertFalse(store.isEnabled(.fastModeEnabled), "fastModeEnabled は DEBUG で false（明示的にユーザーが ON にする想定）")
+    }
 }
