@@ -25,6 +25,7 @@ struct ContentView: View {
                     viewModel: setupViewModel,
                     topicHistoryStore: topicHistoryStore,
                     topicFeedbackStore: topicFeedbackStore,
+                    gameHistoryStore: historyStore,
                     onStart: {
                         let session = setupViewModel.buildSession()
                         gameViewModel = GameProgressViewModel(
