@@ -122,5 +122,13 @@ final class FeatureFlagStoreTests: XCTestCase {
         // DEBUG ビルド前提
         XCTAssertTrue(store.isEnabled(.dataResetEnabled), "dataResetEnabled は DEBUG で true")
         XCTAssertFalse(store.isEnabled(.fastModeEnabled), "fastModeEnabled は DEBUG で false（明示的にユーザーが ON にする想定）")
+        XCTAssertFalse(store.isEnabled(.debugOverlayEnabled), "debugOverlayEnabled は DEBUG で false（明示的にユーザーが ON にする想定）")
+    }
+
+    func test_全フラグreleaseDefaultはfalse() {
+        // RELEASE ビルドではユーザー視点で開発者機能はすべて非表示。
+        for flag in FeatureFlag.allCases {
+            XCTAssertFalse(flag.releaseDefault, "\(flag) の RELEASE デフォルトは false でなければならない")
+        }
     }
 }

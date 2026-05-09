@@ -230,14 +230,8 @@ struct GameSettingsView: View {
                 }
             }
 
-            Toggle(isOn: fastModeBinding) {
-                Text("高速モード（4x）")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-            .toggleStyle(.switch)
-            .tint(.purple)
-            .controlSize(.mini)
+            devToggle(.fastModeEnabled, label: "高速モード（4x）")
+            devToggle(.debugOverlayEnabled, label: "デバッグオーバーレイ")
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
@@ -255,11 +249,23 @@ struct GameSettingsView: View {
         }
     }
 
-    private var fastModeBinding: Binding<Bool> {
+    private func flagBinding(_ flag: FeatureFlag) -> Binding<Bool> {
         Binding(
-            get: { featureFlags.isEnabled(.fastModeEnabled) },
-            set: { featureFlags.setEnabled(.fastModeEnabled, $0) }
+            get: { featureFlags.isEnabled(flag) },
+            set: { featureFlags.setEnabled(flag, $0) }
         )
+    }
+
+    @ViewBuilder
+    private func devToggle(_ flag: FeatureFlag, label: String) -> some View {
+        Toggle(isOn: flagBinding(flag)) {
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .toggleStyle(.switch)
+        .tint(.purple)
+        .controlSize(.mini)
     }
 
     private var dataResetAlertBinding: Binding<Bool> {

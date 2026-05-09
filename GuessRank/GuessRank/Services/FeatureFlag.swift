@@ -13,6 +13,8 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
     case dataResetEnabled
     /// 高速モード — 結果アニメーション等の遅延を 4x で短縮する。
     case fastModeEnabled
+    /// ゲーム進行画面右上にデバッグオーバーレイ（ターン / フェーズ / 入力プレイヤー）を表示する。
+    case debugOverlayEnabled
 
     var id: String { rawValue }
 
@@ -22,6 +24,7 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         case .quickStartEnabled: "クイックスタート"
         case .dataResetEnabled: "データリセット"
         case .fastModeEnabled: "高速モード（4x）"
+        case .debugOverlayEnabled: "デバッグオーバーレイ"
         }
     }
 
@@ -35,6 +38,8 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
             "履歴・FB・ゲーム履歴をリセットするボタンを開発者セクションに表示します。"
         case .fastModeEnabled:
             "結果アニメーションやトースト表示の遅延を 4 倍速に短縮します。"
+        case .debugOverlayEnabled:
+            "ゲーム進行画面の右上に現在のターン・フェーズ・入力プレイヤーを表示します。"
         }
     }
 
@@ -45,6 +50,7 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         case .quickStartEnabled: true
         case .dataResetEnabled: true
         case .fastModeEnabled: false
+        case .debugOverlayEnabled: false
         }
     }
 
@@ -55,6 +61,7 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         case .quickStartEnabled: false
         case .dataResetEnabled: false
         case .fastModeEnabled: false
+        case .debugOverlayEnabled: false
         }
     }
 }
