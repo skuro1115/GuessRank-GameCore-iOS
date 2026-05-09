@@ -1,8 +1,41 @@
 # 手動セットアップ手順
 
-このドキュメントは **コードでは完結しない、ユーザーが外部で操作する必要がある作業** をまとめたチェックリストです。各 future 機能を実装する前に、対応する手動作業が必要かここで確認してください。
+このドキュメントは **コードでは完結しない、ユーザー（人間）が外部で操作する必要がある作業** をまとめたチェックリストです。Claude / AI には実行できないので、各タスクは手動で進める必要があります。
 
 > ロードマップと優先順位は [future/roadmap.md](future/roadmap.md) を参照
+
+---
+
+## 🚦 現在の優先順位
+
+ロードマップ次フェーズ（Firebase / multiplayer / 広告）に進むためのブロッカー。**並行で進めると AI 側の実装と噛み合います**。
+
+### 🔴 今すぐ着手推奨（次フェーズの起点）
+
+| # | タスク | 所要時間 | アンブロックする機能 |
+|---|---|---|---|
+| 1 | **Firebase プロジェクト作成** | 10分 | Topic FB アップロード / multiplayer / AdMob |
+| 2 | **iOS アプリを Firebase に追加** | 5分 | 同上 |
+| 3 | **`GoogleService-Info.plist` 取得** | 1分 | 同上 |
+| 4 | **Anonymous Authentication 有効化** | 1分 | Topic FB アップロード（匿名 ID） |
+| 5 | **Firestore データベース作成（asia-northeast1）** | 3分 | Topic FB アップロード / multiplayer |
+
+→ 5タスク合計 **20分程度**。完了したら声かけてください。AI 側で `GoogleService-Info.plist` を `.gitignore` 追加 + Firebase SDK の SPM 統合をします。
+
+### 🟡 余裕があれば
+
+| タスク | 所要時間 | アンブロックする機能 |
+|---|---|---|
+| AdMob アカウント作成 | 5分 | 広告 / 広告削除 IAP |
+| Paid Apps Agreement に同意（App Store Connect） | 銀行・税情報入力で数日 | IAP 全般 |
+
+### 🟢 まだ着手しなくて OK（実装と同時で間に合う）
+
+- App Store Connect 栄養ラベル更新（Firebase / AdMob 追加時に同時対応）
+- Required Reasons API 宣言（Firebase 統合 PR で対応）
+- プライバシーポリシー（support.html）の更新（同上）
+- IAP 商品作成（広告削除 IAP 実装時）
+- AdMob 広告ユニット作成（AdMob 実装時）
 
 ---
 
@@ -18,7 +51,7 @@
 
 ## 🔧 現時点で実装に必要な手動作業
 
-**いまブロックしている作業は無し。** すべての MVP+1 機能は手動セットアップなしで実装可能。
+**いまブロックしている作業は無し。** dev_mode 拡張系（オーバーレイ・お題固定・スナップショット）は全て AI 側で完結可能。
 
 ---
 
@@ -26,15 +59,32 @@
 
 ### Firebase 統合（Phase 2 — multiplayer / topic FB upload / remote topics の前提）
 
-| 作業 | 場所 | 備考 |
-|---|---|---|
-| Firebase プロジェクト作成 | https://console.firebase.google.com | iOS アプリを追加。バンドル ID を一致させる |
-| `GoogleService-Info.plist` をダウンロード | Firebase Console | `GuessRank/GuessRank/` 配下に配置（**.gitignore に追加すること**） |
-| Firebase iOS SDK を SPM で追加 | Xcode Project | 必要なモジュール: `FirebaseAuth` / `FirebaseFirestore` / `FirebaseAnalytics` |
-| Anonymous Authentication を有効化 | Firebase Console → Authentication | サインイン方法 → 匿名 をオン |
-| Firestore データベースを作成 | Firebase Console → Firestore | ロケーションは `asia-northeast1`（東京）推奨 |
-| Firestore セキュリティルール初期設定 | Firebase Console | 匿名認証ユーザーが自分のFB書き込みのみ許可するルール（実装時に提示） |
-| Cloud Storage（任意） | Firebase Console | リモートお題 JSON 配信用。または別途 S3/GitHub Pages でも可 |
+#### ステップ詳細
+
+1. **プロジェクト作成** — [https://console.firebase.google.com](https://console.firebase.google.com) → 「プロジェクトを作成」
+   - プロジェクト名: `GuessRank`（任意）
+   - Google Analytics: 有効化推奨（後で AdMob 連携で利用）
+2. **iOS アプリ追加** — プロジェクトトップ → iOS+ アイコン
+   - バンドル ID: `shion.GuessRank`（既存と一致させる）
+   - 「アプリを登録」 → `GoogleService-Info.plist` をダウンロード
+   - **配置はまだしないでください。AI 側で `.gitignore` 追加と同時に行います。**
+3. **Anonymous Authentication 有効化** — 左メニュー Authentication → Sign-in method → 匿名 → 有効
+4. **Firestore データベース作成** — 左メニュー Firestore Database → データベースの作成
+   - モード: **本番環境モード**（後で AI 側でルールを書きます）
+   - ロケーション: `asia-northeast1`（東京）
+5. **（任意）Firebase Hosting / Storage** — リモートお題配信用（保留中なので不要）
+
+#### AI 側で実施する作業
+
+ユーザーが上記5ステップを完了して `GoogleService-Info.plist` を渡してくれたら、以下を実装:
+
+| 作業 | 内容 |
+|---|---|
+| `.gitignore` に追加 | `GoogleService-Info.plist` を漏らさない |
+| ファイル配置 | `GuessRank/GuessRank/` 配下に配置 |
+| Firebase iOS SDK を SPM で追加 | `FirebaseAuth` / `FirebaseFirestore` / `FirebaseAnalytics` |
+| Firestore セキュリティルール | 匿名認証ユーザーが自分のFB書き込みのみ許可するルール |
+| `FeedbackUploader` 実装 | TopicFeedbackStore のエントリを Firestore に flush |
 
 ### AdMob 統合（Phase 3 — ads / IAP の前提）
 
