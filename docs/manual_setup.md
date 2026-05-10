@@ -82,7 +82,7 @@
 |---|---|
 | `.gitignore` に追加 | `GoogleService-Info.plist` を漏らさない |
 | ファイル配置 | `GuessRank/GuessRank/` 配下に配置 |
-| Firebase iOS SDK を SPM で追加 | `FirebaseAuth` / `FirebaseFirestore` / `FirebaseAnalytics` |
+| Firebase iOS SDK を SPM で追加 | 基本4モジュール: `FirebaseAuth` / `FirebaseFirestore` / `FirebaseAnalytics` / `FirebaseCrashlytics`。multiplayer 着手時の追加 SDK（AppCheck / Functions / Performance / Messaging）は [future/multiplayer_design.md](future/multiplayer_design.md) を参照 |
 | Firestore セキュリティルール | 匿名認証ユーザーが自分のFB書き込みのみ許可するルール |
 | `FeedbackUploader` 実装 | TopicFeedbackStore のエントリを Firestore に flush |
 
