@@ -1,6 +1,6 @@
 # 終了画面 — 仕様
 
-> ゲームルール全体は [game_rules.md](../../game_rules.md) を参照
+> ゲームルール全体は [game_rules.md](../../product/game_rules.md) を参照
 
 ## 概要
 

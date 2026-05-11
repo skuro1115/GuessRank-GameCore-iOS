@@ -19,13 +19,13 @@ GuessRank
 - 端末: スマホ1台（みんなで回す）
 - 所要時間: 1サイクル（全員が1回ずつ出題）で約10〜15分
 
-> 詳細: [通信設定 仕様](features/communication_settings/spec.md)
+> 詳細: [通信設定 仕様](../features/communication_settings/spec.md)
 
 ---
 
 ## ゲーム設定
 
-> 詳細: [ゲーム設定 仕様](features/game_settings/spec.md)
+> 詳細: [ゲーム設定 仕様](../features/game_settings/spec.md)
 
 | 項目 | 選択肢 | デフォルト |
 |---|---|---|
@@ -43,7 +43,7 @@ GuessRank
 
 ## ゲームの流れ
 
-> 詳細: [ゲーム進行 仕様](features/game_progress/spec.md)
+> 詳細: [ゲーム進行 仕様](../features/game_progress/spec.md)
 
 ```
 ① お題が表示される（ターゲット名 + 質問 + 選択肢を全員で見る）
@@ -117,7 +117,7 @@ MVP では全お題からランダム選出でも可。
 
 ## 結果・終了
 
-> 詳細: [終了画面 仕様](features/end_screen/spec.md)
+> 詳細: [終了画面 仕様](../features/end_screen/spec.md)
 
 全ターン終了後、スコアの合計で最終順位を決定する。
 同点の場合は同順位。再戦も可能。
@@ -139,7 +139,7 @@ MVP では全お題からランダム選出でも可。
 
 ## 覗き見防止（ローカルモード）
 
-> 詳細: [通信設定 仕様](features/communication_settings/spec.md)
+> 詳細: [通信設定 仕様](../features/communication_settings/spec.md)
 
 1台のスマホをプレイヤー間で回して使う。覗き見防止はカバーオーバーレイで実現:
 

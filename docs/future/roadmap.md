@@ -3,7 +3,7 @@
 `docs/future/` の各機能の **優先順位** と **依存関係** を整理する。優先順位は「ユーザー価値」「実装コスト」「他機能の前提となるか」「手動セットアップでブロックされていないか」の総合判断。
 
 > 手動セットアップ要件は [manual_setup.md](../manual_setup.md) を参照
-> プロジェクト全体のフェーズは [project_overview.md](../project_overview.md) を参照
+> プロジェクト全体のフェーズは [product/overview.md](../product/overview.md) を参照
 
 ---
 
