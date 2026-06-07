@@ -4,6 +4,8 @@ struct TurnResultView: View {
     let viewModel: GameProgressViewModel
     @Binding var isGameActive: Bool
 
+    @Environment(\.featureFlags) private var featureFlags
+
     // MARK: - Animation state
 
     /// Phase 1: 予想者の行が公開されたか（全員同時）
@@ -319,8 +321,8 @@ struct TurnResultView: View {
     private func scheduleReveals() {
         HapticsService.turnComplete()
 
-        let circleInterval: Double = 0.45
-        var t: Double = 0.5
+        let circleInterval: Double = featureFlags.scaledDuration(0.45)
+        var t: Double = featureFlags.scaledDuration(0.5)
 
         // ── Phase 1: 予想者を全員同時に公開 → サークルを3位→2位→1位 ──
         DispatchQueue.main.asyncAfter(deadline: .now() + t) {
@@ -335,7 +337,7 @@ struct TurnResultView: View {
         t += circleInterval * 3
 
         // ── Phase 2: ターゲットの正解を公開 → サークルを3位→2位→1位 ──
-        t += 0.5
+        t += featureFlags.scaledDuration(0.5)
         let targetStart = t
         DispatchQueue.main.asyncAfter(deadline: .now() + targetStart) {
             withAnimation(.spring(response: 0.45, dampingFraction: 0.7)) {
@@ -351,7 +353,7 @@ struct TurnResultView: View {
         t = targetStart + circleInterval * 3
 
         // ── Phase 3: 正誤ハイライト ──
-        t += 0.6
+        t += featureFlags.scaledDuration(0.6)
         DispatchQueue.main.asyncAfter(deadline: .now() + t) {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.55)) {
                 showMatches = true

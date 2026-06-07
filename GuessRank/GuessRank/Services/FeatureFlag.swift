@@ -3,12 +3,18 @@ import Foundation
 /// アプリ内機能のON/OFFを宣言的に切り替える列挙体。
 /// 値のデフォルトはビルド構成（DEBUG / RELEASE）に依存し、実行時上書きは `FeatureFlagStore` が担う。
 ///
-/// 詳細設計は `docs/future/feature_flags.md` を参照。
+/// 詳細設計は `docs/features/feature_flags/spec.md` を参照。
 enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
     /// 開発者モード全体の出口。OFF の場合 dev_mode 配下の機能はすべて非表示・無効。
     case devModeEnabled
     /// クイックスタート（ダミープレイヤー注入での即時ゲーム開始）の有効化。
     case quickStartEnabled
+    /// データリセット（履歴 / FB / ゲーム履歴）の表示。
+    case dataResetEnabled
+    /// 高速モード — 結果アニメーション等の遅延を 4x で短縮する。
+    case fastModeEnabled
+    /// ゲーム進行画面右上にデバッグオーバーレイ（ターン / フェーズ / 入力プレイヤー）を表示する。
+    case debugOverlayEnabled
 
     var id: String { rawValue }
 
@@ -16,6 +22,9 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .devModeEnabled: "開発者モード"
         case .quickStartEnabled: "クイックスタート"
+        case .dataResetEnabled: "データリセット"
+        case .fastModeEnabled: "高速モード（4x）"
+        case .debugOverlayEnabled: "デバッグオーバーレイ"
         }
     }
 
@@ -25,6 +34,12 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
             "ON で設定画面に開発者セクションが表示されます。"
         case .quickStartEnabled:
             "ダミープレイヤーで即時にゲームを開始するボタンを表示します。"
+        case .dataResetEnabled:
+            "履歴・FB・ゲーム履歴をリセットするボタンを開発者セクションに表示します。"
+        case .fastModeEnabled:
+            "結果アニメーションやトースト表示の遅延を 4 倍速に短縮します。"
+        case .debugOverlayEnabled:
+            "ゲーム進行画面の右上に現在のターン・フェーズ・入力プレイヤーを表示します。"
         }
     }
 
@@ -33,6 +48,9 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .devModeEnabled: true
         case .quickStartEnabled: true
+        case .dataResetEnabled: true
+        case .fastModeEnabled: false
+        case .debugOverlayEnabled: false
         }
     }
 
@@ -41,6 +59,9 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .devModeEnabled: false
         case .quickStartEnabled: false
+        case .dataResetEnabled: false
+        case .fastModeEnabled: false
+        case .debugOverlayEnabled: false
         }
     }
 }

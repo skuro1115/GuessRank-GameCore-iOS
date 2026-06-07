@@ -5,6 +5,7 @@ struct GameProgressView: View {
     @Binding var isGameActive: Bool
     var onQuit: () -> Void
 
+    @Environment(\.featureFlags) private var featureFlags
     @State private var showQuitConfirm = false
 
     var body: some View {
@@ -20,6 +21,14 @@ struct GameProgressView: View {
                 }
             case .showResult:
                 TurnResultView(viewModel: viewModel, isGameActive: $isGameActive)
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            if featureFlags.isEnabled(.debugOverlayEnabled) {
+                DebugOverlay(viewModel: viewModel)
+                    .padding(.top, 6)
+                    .padding(.trailing, 6)
+                    .allowsHitTesting(false)
             }
         }
         .navigationBarBackButtonHidden(true)

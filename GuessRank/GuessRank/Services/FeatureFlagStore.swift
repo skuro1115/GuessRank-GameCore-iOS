@@ -49,6 +49,19 @@ final class FeatureFlagStore {
         overrides[flag] != nil
     }
 
+    // MARK: - Animation speed
+
+    /// 高速モードが有効なら 4.0、そうでなければ 1.0。
+    var animationSpeedMultiplier: Double {
+        isEnabled(.fastModeEnabled) ? 4.0 : 1.0
+    }
+
+    /// 与えられた秒数を `animationSpeedMultiplier` で割った値を返す（高速モード時に短縮）。
+    /// アニメーション・遅延の指定箇所で利用する。
+    func scaledDuration(_ seconds: Double) -> Double {
+        seconds / animationSpeedMultiplier
+    }
+
     static func buildDefault(for flag: FeatureFlag) -> Bool {
         #if DEBUG
         return flag.debugDefault

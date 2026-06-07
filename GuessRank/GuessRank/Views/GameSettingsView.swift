@@ -4,12 +4,14 @@ struct GameSettingsView: View {
     @Bindable var viewModel: GameSetupViewModel
     var topicHistoryStore: TopicHistoryStore
     var topicFeedbackStore: TopicFeedbackStore
+    var gameHistoryStore: GameHistoryStore
     var onStart: () -> Void
     var onShowHistory: () -> Void
 
     @Environment(\.featureFlags) private var featureFlags
     @FocusState private var focusedIndex: Int?
     @State private var showTopicSettings = false
+    @State private var dataResetTarget: DataResetTarget?
 
     var body: some View {
         VStack(spacing: 12) {
@@ -203,11 +205,90 @@ struct GameSettingsView: View {
                     }
                 }
             }
+
+            if featureFlags.isEnabled(.dataResetEnabled) {
+                HStack(spacing: 6) {
+                    Text("データ")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Menu {
+                        Button("お題履歴") { dataResetTarget = .topicHistory }
+                        Button("お題FB（ブロック+面白い）") { dataResetTarget = .topicFeedback }
+                        Button("ゲーム履歴") { dataResetTarget = .gameHistory }
+                        Divider()
+                        Button("全データ", role: .destructive) { dataResetTarget = .all }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "trash")
+                            Text("リセット…")
+                        }
+                        .font(.caption)
+                    }
+                    .menuStyle(.borderlessButton)
+                    .tint(.purple)
+                }
+            }
+
+            devToggle(.fastModeEnabled, label: "高速モード（4x）")
+            devToggle(.debugOverlayEnabled, label: "デバッグオーバーレイ")
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
         .background(Color.purple.opacity(0.06))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .alert(
+            "リセット確認",
+            isPresented: dataResetAlertBinding,
+            presenting: dataResetTarget
+        ) { target in
+            Button("リセット", role: .destructive) { performReset(target) }
+            Button("キャンセル", role: .cancel) {}
+        } message: { target in
+            Text(target.confirmationMessage)
+        }
+    }
+
+    private func flagBinding(_ flag: FeatureFlag) -> Binding<Bool> {
+        Binding(
+            get: { featureFlags.isEnabled(flag) },
+            set: { featureFlags.setEnabled(flag, $0) }
+        )
+    }
+
+    @ViewBuilder
+    private func devToggle(_ flag: FeatureFlag, label: String) -> some View {
+        Toggle(isOn: flagBinding(flag)) {
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .toggleStyle(.switch)
+        .tint(.purple)
+        .controlSize(.mini)
+    }
+
+    private var dataResetAlertBinding: Binding<Bool> {
+        Binding(
+            get: { dataResetTarget != nil },
+            set: { if !$0 { dataResetTarget = nil } }
+        )
+    }
+
+    private func performReset(_ target: DataResetTarget) {
+        switch target {
+        case .topicHistory:
+            topicHistoryStore.clear()
+        case .topicFeedback:
+            topicFeedbackStore.clearAll()
+        case .gameHistory:
+            gameHistoryStore.clearAll()
+        case .all:
+            topicHistoryStore.clear()
+            topicFeedbackStore.clearAll()
+            gameHistoryStore.clearAll()
+        }
+        dataResetTarget = nil
     }
 
     private func playerNameBinding(at index: Int) -> Binding<String> {
@@ -215,5 +296,28 @@ struct GameSettingsView: View {
             get: { index < viewModel.playerNames.count ? viewModel.playerNames[index] : "" },
             set: { if index < viewModel.playerNames.count { viewModel.playerNames[index] = $0 } }
         )
+    }
+}
+
+/// 開発者モードのデータリセット対象。
+private enum DataResetTarget: String, Identifiable {
+    case topicHistory
+    case topicFeedback
+    case gameHistory
+    case all
+
+    var id: String { rawValue }
+
+    var confirmationMessage: String {
+        switch self {
+        case .topicHistory:
+            "プレイ済みお題の履歴を全件削除します。元に戻せません。"
+        case .topicFeedback:
+            "ブロック設定と「面白い」評価を全件削除します。元に戻せません。"
+        case .gameHistory:
+            "ゲーム履歴を全件削除します。元に戻せません。"
+        case .all:
+            "全ての永続データ（お題履歴・FB・ゲーム履歴）を削除します。元に戻せません。"
+        }
     }
 }

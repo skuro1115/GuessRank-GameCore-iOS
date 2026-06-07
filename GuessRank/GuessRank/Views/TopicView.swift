@@ -7,6 +7,7 @@ struct TopicView: View {
     private let choiceColors: [Color] = [.red, .blue, .green, .orange, .purple, .pink]
     private let choiceLabels = ["A", "B", "C", "D", "E", "F"]
 
+    @Environment(\.featureFlags) private var featureFlags
     @State private var feedbackMessage: String?
 
     var body: some View {
@@ -214,7 +215,8 @@ struct TopicView: View {
                 .transition(.opacity)
                 .id(message)
                 .task(id: message) {
-                    try? await Task.sleep(nanoseconds: 1_500_000_000)
+                    let seconds = featureFlags.scaledDuration(1.5)
+                    try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
                     withAnimation { feedbackMessage = nil }
                 }
             }
