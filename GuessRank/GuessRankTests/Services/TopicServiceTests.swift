@@ -104,4 +104,28 @@ final class TopicServiceTests: XCTestCase {
     func test_totalTopicCountはallTopicsのcountと一致() {
         XCTAssertEqual(TopicService.totalTopicCount, TopicService.allTopics.count)
     }
+
+    // MARK: - Seed-fixing (再現可能なお題抽選)
+
+    func test_同じseedは同じお題系列を返す() {
+        func pick() -> [String] {
+            var rng = SeededRandomNumberGenerator(seed: 2024)
+            return TopicService().pickTopics(
+                count: 8, genre: .random, difficulty: .normal,
+                playMode: .normal, excluding: [], using: &rng
+            ).map(\.id)
+        }
+        XCTAssertEqual(pick(), pick(), "同じシードなら同じお題・同じ順序になるべき")
+    }
+
+    func test_異なるseedは概ね異なるお題系列を返す() {
+        func pick(_ seed: UInt64) -> [String] {
+            var rng = SeededRandomNumberGenerator(seed: seed)
+            return TopicService().pickTopics(
+                count: 8, genre: .random, difficulty: .normal,
+                playMode: .normal, excluding: [], using: &rng
+            ).map(\.id)
+        }
+        XCTAssertNotEqual(pick(1), pick(2))
+    }
 }

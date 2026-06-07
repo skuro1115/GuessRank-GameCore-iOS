@@ -9,6 +9,7 @@ enum AppScreen {
 }
 
 struct ContentView: View {
+    @Environment(\.featureFlags) private var featureFlags
     @State private var screen: AppScreen = .settings
     @State private var setupViewModel = GameSetupViewModel()
     @State private var gameViewModel: GameProgressViewModel?
@@ -31,7 +32,8 @@ struct ContentView: View {
                         gameViewModel = GameProgressViewModel(
                             session: session,
                             topicHistory: topicHistoryStore,
-                            topicFeedback: topicFeedbackStore
+                            topicFeedback: topicFeedbackStore,
+                            topicSeed: featureFlags.effectiveTopicSeed
                         )
                         screen = .game
                     },
