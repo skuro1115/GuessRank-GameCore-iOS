@@ -40,15 +40,17 @@ swift test
 ```
 GuessRank/
 ├── README.md
+├── CLAUDE.md                       # AI 連携時のプロジェクトルール
 ├── docs/                           # ドキュメント（SSOT）
-│   ├── game_rules.md               #   ゲームルール
-│   ├── personas.md                 #   ペルソナ定義
-│   ├── data_model.md               #   データモデル定義
-│   ├── project_overview.md         #   プロジェクト概要・ロードマップ
-│   ├── scope.md                    #   MVP スコープ
-│   ├── architecture/               #   アーキテクチャ設計
+│   ├── index.md                    #   中央マップ
+│   ├── data_model.md               #   データモデル定義（SSOT）
+│   ├── manual_setup.md             #   手動セットアップ手順
+│   ├── support.html                #   公開サポート・プライバシーポリシー
+│   ├── product/                    #   プロダクトコンテキスト（overview / scope / game_rules / personas / brand）
+│   ├── architecture/               #   技術アーキテクチャ
 │   ├── features/                   #   各機能の spec / ui / qa / tasks
-│   └── future/                     #   将来構想
+│   ├── future/                     #   計画中・保留中の機能
+│   └── meta/                       #   開発プロセスログ
 │
 └── GuessRank/                      # iOS アプリ（Xcode プロジェクト）
     ├── GuessRank.xcodeproj
@@ -81,9 +83,13 @@ View → ViewModel → Service
 
 ## ドキュメント
 
+入口は [docs/index.md](docs/index.md)（全文書の中央マップ）。
+
 | ドキュメント | 内容 |
 |---|---|
-| [docs/game_rules.md](docs/game_rules.md) | ゲームルール全体 |
+| [docs/index.md](docs/index.md) | ドキュメント中央マップ・SSOT ルール |
+| [docs/product/game_rules.md](docs/product/game_rules.md) | ゲームルール全体 |
 | [docs/data_model.md](docs/data_model.md) | データモデル定義（SSOT） |
 | [docs/features/game_progress/spec.md](docs/features/game_progress/spec.md) | ゲーム進行の仕様・画面名 |
-| [docs/personas.md](docs/personas.md) | ペルソナ定義（ユウキ / サキ / タケシ） |
+| [docs/product/personas.md](docs/product/personas.md) | ペルソナ定義（ユウキ / サキ / タケシ） |
+| [docs/future/roadmap.md](docs/future/roadmap.md) | 優先順位ロードマップ |

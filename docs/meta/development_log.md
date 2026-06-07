@@ -4,6 +4,8 @@
 
 抽象論ではなく、すべて **このリポジトリの git 履歴・PR 本文から抽出した実例** で説明します。
 
+> **本文中のファイルパスは執筆時点（〜2026-05-07）のものです。** 当時 `docs/` 直下にあった `personas.md` / `scope.md` / `game_rules.md` / `brand.md` / `project_overview.md` は現在 `docs/product/` 配下に移動しています。本ドキュメント自身も `docs/ai_driven_development_log.md` から `docs/meta/development_log.md` に移動しました。歴史的経緯を読む目的では当時の記述で構いません。最新のドキュメント構成は [index.md](../index.md) を参照してください。
+
 ---
 
 ## 目次

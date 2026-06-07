@@ -1,5 +1,8 @@
 # {機能名} — 仕様
 
+> **Status**: {MVP / 実装済み / WIP / 構想中}
+> 関連: ゲームルール全体は [game_rules.md](../../product/game_rules.md)、優先順位は [roadmap.md](../../future/roadmap.md)
+
 ## 概要
 
 {この機能が何をするか、1-2文で}
