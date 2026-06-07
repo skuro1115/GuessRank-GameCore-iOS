@@ -11,5 +11,8 @@ DerivedData/
 *.xcuserstate
 xcuserdata/
 
+# Firebase (secret — provided manually per docs/manual_setup.md)
+GoogleService-Info.plist
+
 # Claude
 .claude/
