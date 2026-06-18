@@ -10,6 +10,9 @@ class GameProgressViewModel {
     private let topicProvider: TopicProviding
     private let topicHistory: TopicHistoryStore?
     private let topicFeedback: TopicFeedbackStore?
+    /// お題抽選用の RNG。`topicSeed` が与えられれば決定的、なければシステム乱数。
+    /// 初回抽選と `passTopic` の差し替えで同じ系列を進めるため保持する。
+    private var topicRNG: TopicRandomNumberGenerator
 
     // MARK: - Convenience accessors
 
@@ -60,12 +63,14 @@ class GameProgressViewModel {
         session: GameSession,
         topicProvider: TopicProviding = TopicService(),
         topicHistory: TopicHistoryStore? = nil,
-        topicFeedback: TopicFeedbackStore? = nil
+        topicFeedback: TopicFeedbackStore? = nil,
+        topicSeed: UInt64? = nil
     ) {
         self.session = session
         self.topicProvider = topicProvider
         self.topicHistory = topicHistory
         self.topicFeedback = topicFeedback
+        self.topicRNG = TopicRandomNumberGenerator(seed: topicSeed)
         var excluded: Set<String> = topicHistory?.playedIds ?? []
         if let blocked = topicFeedback?.blockedIds {
             excluded.formUnion(blocked)
@@ -75,7 +80,8 @@ class GameProgressViewModel {
             genre: session.config.genre,
             difficulty: session.config.difficulty,
             playMode: session.config.playMode,
-            excluding: excluded
+            excluding: excluded,
+            using: &topicRNG
         )
         loadTopic()
     }
@@ -161,7 +167,8 @@ class GameProgressViewModel {
             genre: session.config.genre,
             difficulty: session.config.difficulty,
             playMode: session.config.playMode,
-            excluding: excluded
+            excluding: excluded,
+            using: &topicRNG
         )
 
         guard let replacement = candidates.first, !excluded.contains(replacement.id) else { return }

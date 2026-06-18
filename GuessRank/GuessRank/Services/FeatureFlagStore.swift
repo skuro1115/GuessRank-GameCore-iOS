@@ -14,8 +14,15 @@ final class FeatureFlagStore {
     private let defaults: UserDefaults
     private var overrides: [FeatureFlag: Bool] = [:]
 
+    /// シード固定（`seedFixEnabled`）時にお題抽選へ渡すシード値。
+    /// 変更は `UserDefaults` に永続化され、`seedFixEnabled` が OFF のときは無視される。
+    var topicSeed: Int {
+        didSet { defaults.set(topicSeed, forKey: Self.topicSeedKey) }
+    }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        self.topicSeed = defaults.integer(forKey: Self.topicSeedKey)
         loadOverrides()
     }
 
@@ -62,6 +69,15 @@ final class FeatureFlagStore {
         seconds / animationSpeedMultiplier
     }
 
+    // MARK: - Topic seed (シード固定)
+
+    /// シード固定が有効なら `topicSeed`、無効なら `nil`。
+    /// `nil` のときお題抽選はシステム乱数（非再現）にフォールバックする。
+    var effectiveTopicSeed: UInt64? {
+        guard isEnabled(.seedFixEnabled) else { return nil }
+        return UInt64(bitPattern: Int64(topicSeed))
+    }
+
     static func buildDefault(for flag: FeatureFlag) -> Bool {
         #if DEBUG
         return flag.debugDefault
@@ -82,4 +98,6 @@ final class FeatureFlagStore {
     private static func userDefaultsKey(for flag: FeatureFlag) -> String {
         "feature_flag.\(flag.rawValue)"
     }
+
+    private static let topicSeedKey = "dev.topic_seed"
 }

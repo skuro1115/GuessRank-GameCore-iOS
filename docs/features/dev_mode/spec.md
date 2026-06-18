@@ -66,6 +66,20 @@ DEBUG ビルドでは両フラグとも初期値 `true`（ユーザー上書き�
 
 `.allowsHitTesting(false)` で、UI 操作は一切妨げない。
 
+### シード固定
+
+子フラグ `seedFixEnabled` の Toggle を開発者セクションに直接表示。ON のときシード入力フィールド（数値）が現れ、その値で**お題抽選を再現可能**にする。同じシードなら毎回まったく同じお題・同じ順序になるため、スクリーンショット撮影やバグ再現に使う。
+
+仕組みは RNG 注入方式:
+
+- `TopicProviding.pickTopics(..., using: inout some RandomNumberGenerator)` が抽選の唯一の要件。システム乱数を使う簡便版（再現性なし）を extension で提供し、通常の呼び出し元はそのまま。
+- `SeededRandomNumberGenerator`（SplitMix64）が決定的な乱数系列を生成。`seed 0` でも偏らない。
+- `TopicRandomNumberGenerator` は seed があれば決定的、なければシステム乱数にフォールバックするラッパー。
+- `GameProgressViewModel` が 1 ゲーム分この RNG を**保持**し、初回抽選と `passTopic` の差し替えで同じ系列を進める（差し替え結果まで再現する）。
+- シード値は `FeatureFlagStore.topicSeed`（`UserDefaults` 永続化）に保存。`seedFixEnabled` が OFF なら `effectiveTopicSeed` は `nil` を返し、抽選は非再現のシステム乱数に戻る。
+
+> シードは `Int` で保存し、抽選には `UInt64(bitPattern:)` で渡す（負値も往復可能）。お題プールやブロック/履歴による除外集合が変われば、同じシードでも結果は変わる（除外集合は抽選の入力の一部）。
+
 ## 動線
 
 ```
@@ -75,7 +89,8 @@ GameSettingsView
         ├─ 「クイックスタート」ラベル + 横並びプリセットボタン  (quickStartEnabled)
         ├─ 「データ」 [リセット…] Menu                        (dataResetEnabled)
         ├─ 「高速モード（4x）」 Toggle                         (fastModeEnabled の binding)
-        └─ 「デバッグオーバーレイ」 Toggle                     (debugOverlayEnabled の binding)
+        ├─ 「デバッグオーバーレイ」 Toggle                     (debugOverlayEnabled の binding)
+        └─ 「シード固定」 Toggle + シード入力フィールド        (seedFixEnabled の binding / topicSeed)
 
 GameProgressView
 └─ .overlay(alignment: .topTrailing) で DebugOverlay (debugOverlayEnabled が ON のとき)
@@ -93,13 +108,16 @@ GameProgressView
 - `FeatureFlagStore.scaledDuration(_:)` — 高速モード時の遅延短縮ヘルパー
 - `DebugOverlay`（Views/DebugOverlay.swift）— ゲーム進行画面のオーバーレイ
 - `GameProgressView.overlay`（topTrailing）— DebugOverlay の差し込み
+- `SeededRandomNumberGenerator` / `TopicRandomNumberGenerator`（Services/SeededRandomNumberGenerator.swift）— 決定的乱数とそのラッパー
+- `TopicProviding.pickTopics(..., using:)` — RNG 注入版の抽選要件
+- `FeatureFlagStore.topicSeed` / `.effectiveTopicSeed` — シード値の永続化と有効値解決
+- `GameProgressViewModel.init(topicSeed:)` — シードからゲーム単位の RNG を生成
 
 ## 将来拡張 (Out of scope)
 
 `docs/future/roadmap.md` の優先順位に従い、後続 PR で段階追加する:
 
-- **お題固定** — topic ID 指定で抽選バイパス（再現テスト・スクショ撮影）
-- **シード固定** — お題抽選とローテーションの再現可能化
+- **お題固定** — topic ID 直接指定で抽選バイパス（シード固定は順序の再現、こちらは個別お題の固定）
 - **状態スナップショット** — `GameSession` の JSON エクスポート / インポート
 - **アニメーション速度の網羅対応** — 現状は sleep / dispatch delay のみ。SwiftUI `.spring()` / `.animation(.easeOut(duration:))` の duration もスケールできるようにする
 - **オーバーレイの拡張** — タップで折りたたみ、抽選で除外されたお題と理由表示、HapticsService 呼び出しイベント表示など
