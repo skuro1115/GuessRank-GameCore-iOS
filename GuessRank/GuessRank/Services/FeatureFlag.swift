@@ -17,6 +17,8 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
     case debugOverlayEnabled
     /// シード固定 — お題抽選を固定シードで再現可能にする（再現テスト・スクショ撮影用）。
     case seedFixEnabled
+    /// お題固定 — 指定したお題 ID を初回ターンに直接差し込み、抽選をバイパスする（スクショ・バグ再現用）。
+    case topicPinEnabled
 
     var id: String { rawValue }
 
@@ -28,6 +30,7 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         case .fastModeEnabled: "高速モード（4x）"
         case .debugOverlayEnabled: "デバッグオーバーレイ"
         case .seedFixEnabled: "シード固定"
+        case .topicPinEnabled: "お題固定"
         }
     }
 
@@ -45,6 +48,8 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
             "ゲーム進行画面の右上に現在のターン・フェーズ・入力プレイヤーを表示します。"
         case .seedFixEnabled:
             "お題抽選を固定シードで再現可能にします。同じシードなら毎回同じお題系列になります。"
+        case .topicPinEnabled:
+            "指定したお題 ID を初回ターンに固定し、抽選をバイパスします。スクショ・バグ再現用。"
         }
     }
 
@@ -57,6 +62,7 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         case .fastModeEnabled: false
         case .debugOverlayEnabled: false
         case .seedFixEnabled: false
+        case .topicPinEnabled: false
         }
     }
 
@@ -69,6 +75,7 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         case .fastModeEnabled: false
         case .debugOverlayEnabled: false
         case .seedFixEnabled: false
+        case .topicPinEnabled: false
         }
     }
 }
