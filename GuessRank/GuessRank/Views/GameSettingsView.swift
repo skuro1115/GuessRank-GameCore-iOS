@@ -247,6 +247,23 @@ struct GameSettingsView: View {
                     Spacer()
                 }
             }
+
+            devToggle(.topicPinEnabled, label: "お題固定")
+
+            if featureFlags.isEnabled(.topicPinEnabled) {
+                HStack(spacing: 6) {
+                    Text("お題ID")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    TextField("例: food_e01", text: pinnedTopicIdBinding)
+                        .textFieldStyle(.roundedBorder)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                        .font(.caption)
+                        .frame(maxWidth: 160)
+                    Spacer()
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
@@ -275,6 +292,13 @@ struct GameSettingsView: View {
         Binding(
             get: { featureFlags.topicSeed },
             set: { featureFlags.topicSeed = $0 }
+        )
+    }
+
+    private var pinnedTopicIdBinding: Binding<String> {
+        Binding(
+            get: { featureFlags.pinnedTopicId },
+            set: { featureFlags.pinnedTopicId = $0 }
         )
     }
 

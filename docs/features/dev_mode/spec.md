@@ -80,6 +80,22 @@ DEBUG ビルドでは両フラグとも初期値 `true`（ユーザー上書き�
 
 > シードは `Int` で保存し、抽選には `UInt64(bitPattern:)` で渡す（負値も往復可能）。お題プールやブロック/履歴による除外集合が変われば、同じシードでも結果は変わる（除外集合は抽選の入力の一部）。
 
+### お題固定
+
+子フラグ `topicPinEnabled` の Toggle を開発者セクションに直接表示。ON のときお題 ID 入力フィールド（文字列）が現れ、その ID のお題を**初回ターンに固定**する。スクリーンショット撮影や特定お題でのバグ再現で、毎回必ず既知のお題から始められる。
+
+シード固定が「抽選順序の再現」なのに対し、お題固定は「個別お題の直接指定」。両者は併用可能（初回は固定お題、2 ターン目以降はシード順で再現）。
+
+仕組み:
+
+- `TopicProviding.topic(withId:)` が ID から `Topic?` を返す（`TopicService` は内蔵プール、テストは注入プールを線形検索）。
+- `GameProgressViewModel.init(pinnedTopicId:)` が抽選後に `applyPinnedTopic(_:)` を呼び、指定お題を `topics[0]` へ差し込む。
+- **プレイモード不一致**（例: ハードお題をノーマルゲームに）の ID は無視する。ランクスロット数が崩れるのを防ぐため。
+- 抽選結果に同じお題が含まれていれば**重複させず**先頭へ移動する。
+- お題 ID は `FeatureFlagStore.pinnedTopicId`（`UserDefaults` 永続化）に保存。`topicPinEnabled` が OFF、空文字、空白のみのときは `effectivePinnedTopicId` が `nil` を返し、初回ターンも通常抽選に戻る。
+
+> 固定するのは初回ターンのみ。`passTopic` で固定お題をパスすれば通常の差し替えに従う（固定の押し付けはしない）。全ターンの個別指定は将来拡張。
+
 ## 動線
 
 ```
@@ -90,7 +106,8 @@ GameSettingsView
         ├─ 「データ」 [リセット…] Menu                        (dataResetEnabled)
         ├─ 「高速モード（4x）」 Toggle                         (fastModeEnabled の binding)
         ├─ 「デバッグオーバーレイ」 Toggle                     (debugOverlayEnabled の binding)
-        └─ 「シード固定」 Toggle + シード入力フィールド        (seedFixEnabled の binding / topicSeed)
+        ├─ 「シード固定」 Toggle + シード入力フィールド        (seedFixEnabled の binding / topicSeed)
+        └─ 「お題固定」 Toggle + お題ID入力フィールド          (topicPinEnabled の binding / pinnedTopicId)
 
 GameProgressView
 └─ .overlay(alignment: .topTrailing) で DebugOverlay (debugOverlayEnabled が ON のとき)
@@ -110,14 +127,17 @@ GameProgressView
 - `GameProgressView.overlay`（topTrailing）— DebugOverlay の差し込み
 - `SeededRandomNumberGenerator` / `TopicRandomNumberGenerator`（Services/SeededRandomNumberGenerator.swift）— 決定的乱数とそのラッパー
 - `TopicProviding.pickTopics(..., using:)` — RNG 注入版の抽選要件
+- `TopicProviding.topic(withId:)` — ID からお題を引く（お題固定用）
 - `FeatureFlagStore.topicSeed` / `.effectiveTopicSeed` — シード値の永続化と有効値解決
+- `FeatureFlagStore.pinnedTopicId` / `.effectivePinnedTopicId` — 固定お題 ID の永続化と有効値解決
 - `GameProgressViewModel.init(topicSeed:)` — シードからゲーム単位の RNG を生成
+- `GameProgressViewModel.init(pinnedTopicId:)` / `applyPinnedTopic(_:)` — 固定お題の初回ターン差し込み
 
 ## 将来拡張 (Out of scope)
 
 `docs/future/roadmap.md` の優先順位に従い、後続 PR で段階追加する:
 
-- **お題固定** — topic ID 直接指定で抽選バイパス（シード固定は順序の再現、こちらは個別お題の固定）
+- **全ターンお題固定** — 初回だけでなく各ターンのお題を ID リストで個別指定する
 - **状態スナップショット** — `GameSession` の JSON エクスポート / インポート
 - **アニメーション速度の網羅対応** — 現状は sleep / dispatch delay のみ。SwiftUI `.spring()` / `.animation(.easeOut(duration:))` の duration もスケールできるようにする
 - **オーバーレイの拡張** — タップで折りたたみ、抽選で除外されたお題と理由表示、HapticsService 呼び出しイベント表示など

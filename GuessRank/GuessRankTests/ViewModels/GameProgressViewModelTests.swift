@@ -463,7 +463,71 @@ final class GameProgressViewModelTests: XCTestCase {
         XCTAssertEqual(a.currentTopic?.id, b.currentTopic?.id)
     }
 
+    // MARK: - Topic pin (お題固定)
+
+    func test_お題固定_初回ターンが固定お題になる() {
+        let vm = makePinnedViewModel(pinnedId: "mock_7")
+        XCTAssertEqual(vm.currentTopic?.id, "mock_7", "固定したお題が初回ターンに出る")
+    }
+
+    func test_お題固定_存在しないIDは無視され通常抽選になる() {
+        let vm = makePinnedViewModel(pinnedId: "does_not_exist")
+        XCTAssertNotNil(vm.currentTopic, "未知の ID でもクラッシュせず通常抽選のまま")
+    }
+
+    func test_お題固定_プレイモード不一致のお題は無視される() {
+        let normalMocks = (1...10).map { i in
+            Fixtures.topic(id: "mock_\(i)", question: "Q\(i)", choices: ["A\(i)", "B\(i)", "C\(i)"])
+        }
+        let hard = Topic(
+            id: "hard_x",
+            question: "HQ",
+            choices: ["a", "b", "c", "d", "e", "f"],
+            genre: .random,
+            difficulty: .normal,
+            playMode: .hard
+        )
+        let provider = MockTopicProvider(topics: normalMocks + [hard])
+        // normal ゲームに hard お題を固定しようとしても無視される
+        let vm = makePinnedViewModel(pinnedId: "hard_x", provider: provider)
+        XCTAssertNotEqual(vm.currentTopic?.id, "hard_x", "プレイモード不一致は差し込まれない")
+        XCTAssertEqual(vm.currentTopic?.playMode, .normal)
+    }
+
+    func test_お題固定_抽選に含まれても重複しない() {
+        // totalTurns = 9。固定お題が抽選結果にもあった場合に2回出ないこと。
+        let vm = makePinnedViewModel(pinnedId: "mock_3", playerNames: ["A", "B", "C"], cycleCount: 3)
+        var seenIds: [String] = []
+        while vm.session.status != .completed {
+            if let id = vm.currentTopic?.id { seenIds.append(id) }
+            completeTurn(vm: vm, correctAnswer: true)
+            vm.advanceToNextTurn()
+        }
+        XCTAssertEqual(seenIds.first, "mock_3", "初回は固定お題")
+        XCTAssertEqual(seenIds.filter { $0 == "mock_3" }.count, 1, "固定お題が重複出題されない")
+    }
+
+    func test_お題固定なし_pinnedNilなら通常抽選() {
+        let vm = makeViewModel(playerNames: ["A", "B", "C"])
+        XCTAssertNotNil(vm.currentTopic, "pinnedTopicId 未指定でも通常どおり抽選される")
+    }
+
     // MARK: - Helpers
+
+    private func makePinnedViewModel(
+        pinnedId: String,
+        playerNames: [String] = ["A", "B", "C"],
+        cycleCount: Int = 1,
+        provider: MockTopicProvider = MockTopicProvider()
+    ) -> GameProgressViewModel {
+        let config = Fixtures.config(cycleCount: cycleCount, playerCount: playerNames.count)
+        let session = GameSession(config: config, players: Fixtures.players(playerNames))
+        return GameProgressViewModel(
+            session: session,
+            topicProvider: provider,
+            pinnedTopicId: pinnedId
+        )
+    }
 
     private func makeSeededViewModel(
         seed: UInt64,

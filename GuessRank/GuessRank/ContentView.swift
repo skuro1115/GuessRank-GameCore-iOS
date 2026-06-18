@@ -33,7 +33,8 @@ struct ContentView: View {
                             session: session,
                             topicHistory: topicHistoryStore,
                             topicFeedback: topicFeedbackStore,
-                            topicSeed: featureFlags.effectiveTopicSeed
+                            topicSeed: featureFlags.effectiveTopicSeed,
+                            pinnedTopicId: featureFlags.effectivePinnedTopicId
                         )
                         screen = .game
                     },

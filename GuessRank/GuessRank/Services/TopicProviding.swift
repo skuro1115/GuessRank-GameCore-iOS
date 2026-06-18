@@ -12,6 +12,10 @@ protocol TopicProviding {
         excluding: Set<String>,
         using generator: inout G
     ) -> [Topic]
+
+    /// 指定 ID のお題を返す（存在しなければ `nil`）。
+    /// dev_mode の「お題固定」で、抽選をバイパスして特定のお題を直接差し込むために使う。
+    func topic(withId id: String) -> Topic?
 }
 
 extension TopicProviding {
