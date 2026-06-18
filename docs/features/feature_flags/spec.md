@@ -17,6 +17,13 @@
 |---|---|---|---|
 | `devModeEnabled` | true | false | dev_mode 全体の親フラグ |
 | `quickStartEnabled` | true | false | QuickStart プリセット表示（dev_mode 配下） |
+| `dataResetEnabled` | true | false | データリセット Menu の表示（dev_mode 配下） |
+| `fastModeEnabled` | false | false | 高速モード（4x）の有効化（dev_mode 配下） |
+| `debugOverlayEnabled` | false | false | ゲーム進行画面のデバッグオーバーレイ（dev_mode 配下） |
+| `seedFixEnabled` | false | false | シード固定（お題抽選の再現）（dev_mode 配下） |
+| `topicPinEnabled` | false | false | お題固定（初回ターンのお題 ID 指定）（dev_mode 配下） |
+
+> RELEASE デフォルトは全フラグ false（配信版で開発者機能を完全非表示）。DEBUG でも `fastModeEnabled` 等は明示 ON 前提で false。
 
 新フラグ追加時は `FeatureFlag` 列挙体に case を追加し、`debugDefault` / `releaseDefault` を実装する。
 
