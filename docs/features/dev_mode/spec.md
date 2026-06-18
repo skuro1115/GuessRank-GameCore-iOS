@@ -62,7 +62,11 @@ DEBUG ビルドでは両フラグとも初期値 `true`（ユーザー上書き�
 | `phase: …` | `showTopic` / `rankingInput(index, covered/uncovered)` / `showResult` |
 | `input: 名前` | 現在の入力プレイヤー（`rankingInput` フェーズのみ） |
 | `topic: id` | 現お題の ID（再現テスト用） |
+| `seed: N` | シード固定が有効なゲームの固定シード値（`activeTopicSeed`、未使用時は非表示） |
+| `pin: id` | 初回ターンへ実際に差し込まれた固定お題 ID（`appliedPinnedTopicId`、未適用時は非表示） |
 | `last best: N` | 直近完了ターンの最高スコア |
+
+> `seed:` / `pin:` 行はシード固定・お題固定が**実際に適用された**ゲームでのみ出る。不正 ID やプレイモード不一致で無視された固定は `pin:` に出ない（`appliedPinnedTopicId` が `nil` のため）。再現性が効いているかを実機で一目で確認できる。
 
 `.allowsHitTesting(false)` で、UI 操作は一切妨げない。
 
