@@ -30,4 +30,8 @@ struct MockTopicProvider: TopicProviding {
         let final = filtered.isEmpty ? pool : filtered
         return Array(final.shuffled(using: &generator).prefix(count))
     }
+
+    func topic(withId id: String) -> Topic? {
+        topics.first { $0.id == id }
+    }
 }
