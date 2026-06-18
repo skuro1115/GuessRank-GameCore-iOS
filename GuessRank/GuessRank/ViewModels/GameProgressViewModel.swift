@@ -14,6 +14,12 @@ class GameProgressViewModel {
     /// 初回抽選と `passTopic` の差し替えで同じ系列を進めるため保持する。
     private var topicRNG: TopicRandomNumberGenerator
 
+    /// このゲームで実際に使われた固定シード（なければ `nil`）。デバッグオーバーレイ表示用。
+    let activeTopicSeed: UInt64?
+    /// 初回ターンへ実際に差し込まれた固定お題 ID（適用されなければ `nil`）。
+    /// 不正 ID / プレイモード不一致で無視された場合も `nil`。デバッグオーバーレイ表示用。
+    private(set) var appliedPinnedTopicId: String?
+
     // MARK: - Convenience accessors
 
     var phase: TurnPhase { inputState.phase }
@@ -72,6 +78,7 @@ class GameProgressViewModel {
         self.topicHistory = topicHistory
         self.topicFeedback = topicFeedback
         self.topicRNG = TopicRandomNumberGenerator(seed: topicSeed)
+        self.activeTopicSeed = topicSeed
         var excluded: Set<String> = topicHistory?.playedIds ?? []
         if let blocked = topicFeedback?.blockedIds {
             excluded.formUnion(blocked)
@@ -96,6 +103,7 @@ class GameProgressViewModel {
               let pinned = topicProvider.topic(withId: pinnedId),
               pinned.playMode == session.config.playMode
         else { return }
+        appliedPinnedTopicId = pinned.id
         if topics.first?.id == pinned.id { return }
         topics.removeAll { $0.id == pinned.id }
         topics.insert(pinned, at: 0)

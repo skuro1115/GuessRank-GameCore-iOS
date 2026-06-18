@@ -18,6 +18,12 @@ struct DebugOverlay: View {
             if let topicId = viewModel.currentTopic?.id {
                 Text("topic: \(topicId)")
             }
+            if let seed = viewModel.activeTopicSeed {
+                Text("seed: \(seed)")
+            }
+            if let pinned = viewModel.appliedPinnedTopicId {
+                Text("pin: \(pinned)")
+            }
             if let lastScore = lastTurnTopScore {
                 Text("last best: \(lastScore)")
             }
