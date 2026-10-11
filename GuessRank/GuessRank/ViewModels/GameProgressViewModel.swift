@@ -64,7 +64,8 @@ class GameProgressViewModel {
         topicProvider: TopicProviding = TopicService(),
         topicHistory: TopicHistoryStore? = nil,
         topicFeedback: TopicFeedbackStore? = nil,
-        topicSeed: UInt64? = nil
+        topicSeed: UInt64? = nil,
+        pinnedTopicId: String? = nil
     ) {
         self.session = session
         self.topicProvider = topicProvider
@@ -83,7 +84,22 @@ class GameProgressViewModel {
             excluding: excluded,
             using: &topicRNG
         )
+        applyPinnedTopic(pinnedTopicId)
         loadTopic()
+    }
+
+    /// dev_mode「お題固定」用。指定 ID のお題を初回ターン（`topics[0]`）に差し込む。
+    /// プレイモードが一致しない ID（例: ハードお題をノーマルゲームに）は無視する。
+    /// 抽選結果に同じお題が含まれていれば重複させず先頭へ移動する。
+    private func applyPinnedTopic(_ pinnedId: String?) {
+        guard let pinnedId,
+              let pinned = topicProvider.topic(withId: pinnedId),
+              pinned.playMode == session.config.playMode
+        else { return }
+        if topics.first?.id == pinned.id { return }
+        topics.removeAll { $0.id == pinned.id }
+        topics.insert(pinned, at: 0)
+        topics = Array(topics.prefix(session.totalTurns))
     }
 
     // MARK: - Actions

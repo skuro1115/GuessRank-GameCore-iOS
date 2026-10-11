@@ -167,4 +167,47 @@ final class FeatureFlagStoreTests: XCTestCase {
         store.topicSeed = -1
         XCTAssertEqual(store.effectiveTopicSeed, UInt64(bitPattern: Int64(-1)))
     }
+
+    // MARK: - Topic pin (お題固定)
+
+    func test_pinnedTopicId_永続化される() {
+        let store1 = FeatureFlagStore(defaults: defaults)
+        store1.pinnedTopicId = "food_e01"
+
+        let store2 = FeatureFlagStore(defaults: defaults)
+        XCTAssertEqual(store2.pinnedTopicId, "food_e01", "別インスタンスでも復元される")
+    }
+
+    func test_pinnedTopicId_既定は空文字() {
+        let store = FeatureFlagStore(defaults: defaults)
+        XCTAssertEqual(store.pinnedTopicId, "")
+    }
+
+    func test_effectivePinnedTopicId_topicPinOFFならnil() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.topicPinEnabled, false)
+        store.pinnedTopicId = "food_e01"
+        XCTAssertNil(store.effectivePinnedTopicId, "お題固定 OFF のとき ID は無視される")
+    }
+
+    func test_effectivePinnedTopicId_topicPinONならID() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.topicPinEnabled, true)
+        store.pinnedTopicId = "food_e01"
+        XCTAssertEqual(store.effectivePinnedTopicId, "food_e01")
+    }
+
+    func test_effectivePinnedTopicId_空白のみはnil() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.topicPinEnabled, true)
+        store.pinnedTopicId = "   "
+        XCTAssertNil(store.effectivePinnedTopicId, "空白のみの ID は無効")
+    }
+
+    func test_effectivePinnedTopicId_前後の空白はトリムされる() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.topicPinEnabled, true)
+        store.pinnedTopicId = "  food_e01  "
+        XCTAssertEqual(store.effectivePinnedTopicId, "food_e01")
+    }
 }

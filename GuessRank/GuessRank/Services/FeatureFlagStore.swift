@@ -20,9 +20,16 @@ final class FeatureFlagStore {
         didSet { defaults.set(topicSeed, forKey: Self.topicSeedKey) }
     }
 
+    /// お題固定（`topicPinEnabled`）時に初回ターンへ差し込むお題 ID。
+    /// 変更は `UserDefaults` に永続化され、`topicPinEnabled` が OFF のときは無視される。
+    var pinnedTopicId: String {
+        didSet { defaults.set(pinnedTopicId, forKey: Self.pinnedTopicIdKey) }
+    }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.topicSeed = defaults.integer(forKey: Self.topicSeedKey)
+        self.pinnedTopicId = defaults.string(forKey: Self.pinnedTopicIdKey) ?? ""
         loadOverrides()
     }
 
@@ -78,6 +85,16 @@ final class FeatureFlagStore {
         return UInt64(bitPattern: Int64(topicSeed))
     }
 
+    // MARK: - Topic pin (お題固定)
+
+    /// お題固定が有効で ID が空でなければトリム済み ID、そうでなければ `nil`。
+    /// `nil` のとき初回ターンは通常抽選のままになる。
+    var effectivePinnedTopicId: String? {
+        guard isEnabled(.topicPinEnabled) else { return nil }
+        let trimmed = pinnedTopicId.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
     static func buildDefault(for flag: FeatureFlag) -> Bool {
         #if DEBUG
         return flag.debugDefault
@@ -100,4 +117,5 @@ final class FeatureFlagStore {
     }
 
     private static let topicSeedKey = "dev.topic_seed"
+    private static let pinnedTopicIdKey = "dev.pinned_topic_id"
 }

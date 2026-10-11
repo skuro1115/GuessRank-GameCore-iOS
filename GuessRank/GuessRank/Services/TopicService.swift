@@ -247,4 +247,8 @@ struct TopicService: TopicProviding {
         let pool = filtered.isEmpty ? basePool : filtered
         return Array(pool.shuffled(using: &generator).prefix(count))
     }
+
+    func topic(withId id: String) -> Topic? {
+        Self.allTopics.first { $0.id == id }
+    }
 }
