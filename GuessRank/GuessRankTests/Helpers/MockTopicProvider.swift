@@ -10,12 +10,13 @@ struct MockTopicProvider: TopicProviding {
         }
     }
 
-    func pickTopics(
+    func pickTopics<G: RandomNumberGenerator>(
         count: Int,
         genre: Genre,
         difficulty: Difficulty,
         playMode: PlayMode,
-        excluding: Set<String>
+        excluding: Set<String>,
+        using generator: inout G
     ) -> [Topic] {
         let modeFiltered = topics.filter { $0.playMode == playMode }
         let pool: [Topic]
@@ -27,6 +28,6 @@ struct MockTopicProvider: TopicProviding {
         }
         let filtered = pool.filter { !excluding.contains($0.id) }
         let final = filtered.isEmpty ? pool : filtered
-        return Array(final.shuffled().prefix(count))
+        return Array(final.shuffled(using: &generator).prefix(count))
     }
 }

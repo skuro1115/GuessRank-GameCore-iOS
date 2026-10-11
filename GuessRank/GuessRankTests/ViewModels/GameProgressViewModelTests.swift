@@ -444,7 +444,40 @@ final class GameProgressViewModelTests: XCTestCase {
         XCTAssertEqual(turn.answers.first?.score, 100)
     }
 
+    // MARK: - Seed-fixing (再現可能なお題抽選)
+
+    func test_同じseedのVMは同じ初期お題になる() {
+        let a = makeSeededViewModel(seed: 555)
+        let b = makeSeededViewModel(seed: 555)
+        XCTAssertNotNil(a.currentTopic)
+        XCTAssertEqual(a.currentTopic?.id, b.currentTopic?.id)
+    }
+
+    func test_同じseedのVMはpassTopic後も同じお題になる() {
+        // passTopic でも保持した RNG が同一に進むため、差し替え結果まで一致する。
+        let a = makeSeededViewModel(seed: 555)
+        let b = makeSeededViewModel(seed: 555)
+        a.passTopic()
+        b.passTopic()
+        XCTAssertNotNil(a.currentTopic)
+        XCTAssertEqual(a.currentTopic?.id, b.currentTopic?.id)
+    }
+
     // MARK: - Helpers
+
+    private func makeSeededViewModel(
+        seed: UInt64,
+        playerNames: [String] = ["A", "B", "C"],
+        cycleCount: Int = 1
+    ) -> GameProgressViewModel {
+        let config = Fixtures.config(cycleCount: cycleCount, playerCount: playerNames.count)
+        let session = GameSession(config: config, players: Fixtures.players(playerNames))
+        return GameProgressViewModel(
+            session: session,
+            topicProvider: MockTopicProvider(),
+            topicSeed: seed
+        )
+    }
 
     private func makeViewModel(
         playerNames: [String],

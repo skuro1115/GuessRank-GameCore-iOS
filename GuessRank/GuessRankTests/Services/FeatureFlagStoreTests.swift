@@ -131,4 +131,40 @@ final class FeatureFlagStoreTests: XCTestCase {
             XCTAssertFalse(flag.releaseDefault, "\(flag) の RELEASE デフォルトは false でなければならない")
         }
     }
+
+    // MARK: - Topic seed (シード固定)
+
+    func test_topicSeed_永続化される() {
+        let store1 = FeatureFlagStore(defaults: defaults)
+        store1.topicSeed = 12345
+
+        let store2 = FeatureFlagStore(defaults: defaults)
+        XCTAssertEqual(store2.topicSeed, 12345, "別インスタンスでも復元される")
+    }
+
+    func test_topicSeed_既定は0() {
+        let store = FeatureFlagStore(defaults: defaults)
+        XCTAssertEqual(store.topicSeed, 0)
+    }
+
+    func test_effectiveTopicSeed_seedFixOFFならnil() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.seedFixEnabled, false)
+        store.topicSeed = 777
+        XCTAssertNil(store.effectiveTopicSeed, "シード固定 OFF のときシードは無視される")
+    }
+
+    func test_effectiveTopicSeed_seedFixONならseed値() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.seedFixEnabled, true)
+        store.topicSeed = 777
+        XCTAssertEqual(store.effectiveTopicSeed, 777)
+    }
+
+    func test_effectiveTopicSeed_負のseedもビット保存で往復する() {
+        let store = FeatureFlagStore(defaults: defaults)
+        store.setEnabled(.seedFixEnabled, true)
+        store.topicSeed = -1
+        XCTAssertEqual(store.effectiveTopicSeed, UInt64(bitPattern: Int64(-1)))
+    }
 }

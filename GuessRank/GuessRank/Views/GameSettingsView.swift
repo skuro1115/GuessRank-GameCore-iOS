@@ -232,6 +232,21 @@ struct GameSettingsView: View {
 
             devToggle(.fastModeEnabled, label: "高速モード（4x）")
             devToggle(.debugOverlayEnabled, label: "デバッグオーバーレイ")
+            devToggle(.seedFixEnabled, label: "シード固定")
+
+            if featureFlags.isEnabled(.seedFixEnabled) {
+                HStack(spacing: 6) {
+                    Text("シード")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    TextField("シード値", value: seedBinding, format: .number)
+                        .textFieldStyle(.roundedBorder)
+                        .keyboardType(.numberPad)
+                        .font(.caption)
+                        .frame(maxWidth: 120)
+                    Spacer()
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
@@ -253,6 +268,13 @@ struct GameSettingsView: View {
         Binding(
             get: { featureFlags.isEnabled(flag) },
             set: { featureFlags.setEnabled(flag, $0) }
+        )
+    }
+
+    private var seedBinding: Binding<Int> {
+        Binding(
+            get: { featureFlags.topicSeed },
+            set: { featureFlags.topicSeed = $0 }
         )
     }
 

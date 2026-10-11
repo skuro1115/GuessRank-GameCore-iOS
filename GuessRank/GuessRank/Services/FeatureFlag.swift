@@ -15,6 +15,8 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
     case fastModeEnabled
     /// ゲーム進行画面右上にデバッグオーバーレイ（ターン / フェーズ / 入力プレイヤー）を表示する。
     case debugOverlayEnabled
+    /// シード固定 — お題抽選を固定シードで再現可能にする（再現テスト・スクショ撮影用）。
+    case seedFixEnabled
 
     var id: String { rawValue }
 
@@ -25,6 +27,7 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         case .dataResetEnabled: "データリセット"
         case .fastModeEnabled: "高速モード（4x）"
         case .debugOverlayEnabled: "デバッグオーバーレイ"
+        case .seedFixEnabled: "シード固定"
         }
     }
 
@@ -40,6 +43,8 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
             "結果アニメーションやトースト表示の遅延を 4 倍速に短縮します。"
         case .debugOverlayEnabled:
             "ゲーム進行画面の右上に現在のターン・フェーズ・入力プレイヤーを表示します。"
+        case .seedFixEnabled:
+            "お題抽選を固定シードで再現可能にします。同じシードなら毎回同じお題系列になります。"
         }
     }
 
@@ -51,6 +56,7 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         case .dataResetEnabled: true
         case .fastModeEnabled: false
         case .debugOverlayEnabled: false
+        case .seedFixEnabled: false
         }
     }
 
@@ -62,6 +68,7 @@ enum FeatureFlag: String, CaseIterable, Identifiable, Sendable {
         case .dataResetEnabled: false
         case .fastModeEnabled: false
         case .debugOverlayEnabled: false
+        case .seedFixEnabled: false
         }
     }
 }

@@ -225,12 +225,13 @@ struct TopicService: TopicProviding {
         Topic(id: "random_hm03", question: "人生で大切なのは？", choices: ["健康", "お金", "人間関係", "やりがい", "時間", "自由"], genre: .random, difficulty: .normal, playMode: .hard),
     ]
 
-    func pickTopics(
+    func pickTopics<G: RandomNumberGenerator>(
         count: Int,
         genre: Genre,
         difficulty: Difficulty,
         playMode: PlayMode,
-        excluding: Set<String>
+        excluding: Set<String>,
+        using generator: inout G
     ) -> [Topic] {
         let modePool = Self.allTopics.filter { $0.playMode == playMode }
         let basePool: [Topic]
@@ -244,6 +245,6 @@ struct TopicService: TopicProviding {
         // Fall back to the unfiltered pool when exclusion eliminates every candidate
         // so the game can always continue.
         let pool = filtered.isEmpty ? basePool : filtered
-        return Array(pool.shuffled().prefix(count))
+        return Array(pool.shuffled(using: &generator).prefix(count))
     }
 }
