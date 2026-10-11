@@ -512,6 +512,33 @@ final class GameProgressViewModelTests: XCTestCase {
         XCTAssertNotNil(vm.currentTopic, "pinnedTopicId 未指定でも通常どおり抽選される")
     }
 
+    // MARK: - デバッグ表示用の再現状態
+
+    func test_appliedPinnedTopicId_成功時に記録される() {
+        let vm = makePinnedViewModel(pinnedId: "mock_7")
+        XCTAssertEqual(vm.appliedPinnedTopicId, "mock_7")
+    }
+
+    func test_appliedPinnedTopicId_未知IDではnil() {
+        let vm = makePinnedViewModel(pinnedId: "does_not_exist")
+        XCTAssertNil(vm.appliedPinnedTopicId, "無視された固定はデバッグ表示にも出さない")
+    }
+
+    func test_appliedPinnedTopicId_固定なしならnil() {
+        let vm = makeViewModel(playerNames: ["A", "B"])
+        XCTAssertNil(vm.appliedPinnedTopicId)
+    }
+
+    func test_activeTopicSeed_シード指定時に保持される() {
+        let vm = makeSeededViewModel(seed: 999)
+        XCTAssertEqual(vm.activeTopicSeed, 999)
+    }
+
+    func test_activeTopicSeed_シードなしならnil() {
+        let vm = makeViewModel(playerNames: ["A", "B"])
+        XCTAssertNil(vm.activeTopicSeed)
+    }
+
     // MARK: - Helpers
 
     private func makePinnedViewModel(
