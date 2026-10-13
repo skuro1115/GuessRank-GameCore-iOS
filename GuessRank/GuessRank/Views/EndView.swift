@@ -8,10 +8,17 @@ struct EndView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: - Ranking with inline stats
-            VStack(spacing: 8) {
+            // 全順位を1枚のカードに集約し、共通地で表示する（1位だけを塗り分けない）。
+            // 序列は順位ラベルのみで控えめに示す — 全員の得点が「理解度」として意味を持つため。
+            VStack(spacing: 0) {
                 ForEach(Array(snapshot.sortedResults.enumerated()), id: \.element.id) { index, player in
                     let perfects = snapshot.perfectMatchCount(for: player.id)
                     let best = snapshot.bestTurn(for: player.id)
+
+                    if index > 0 {
+                        Divider()
+                            .padding(.leading, 62)
+                    }
 
                     VStack(spacing: 5) {
                         HStack(spacing: 10) {
@@ -34,7 +41,7 @@ struct EndView: View {
                             Spacer().frame(width: 36)
 
                             Label("\(perfects)回", systemImage: "star.fill")
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(Color.grGold)
 
                             if let best {
                                 Label("最高\(best.score)点", systemImage: "flame.fill")
@@ -45,12 +52,12 @@ struct EndView: View {
                         }
                         .font(.caption)
                     }
-                    .padding(.horizontal, 14)
+                    .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .background(index == 0 ? Color.orange.opacity(0.12) : Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
 
             Spacer(minLength: 12)
 
@@ -62,7 +69,7 @@ struct EndView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "person.2.fill")
                             .font(.title3)
-                            .foregroundStyle(.pink)
+                            .foregroundStyle(Color.grPink)
                         Text("相性分析")
                             .font(.body)
                             .fontWeight(.semibold)
@@ -73,8 +80,8 @@ struct EndView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 26)
-                    .background(Color.pink.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .background(Color.grPink.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
 
                 NavigationLink {
@@ -83,7 +90,7 @@ struct EndView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "exclamationmark.bubble.fill")
                             .font(.title3)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(Color.grAccent)
                         Text("お題分析")
                             .font(.body)
                             .fontWeight(.semibold)
@@ -94,8 +101,8 @@ struct EndView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 26)
-                    .background(Color.orange.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .background(Color.grAccent.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
             }
         }
@@ -121,4 +128,14 @@ struct EndView: View {
         default: "\(rank)位"
         }
     }
+}
+
+/// brand.md / design_explore.md のトークン値（Swift 側トークン層は未導入のため直接定義）
+private extension Color {
+    /// `--gr-accent` #FF8C00
+    static let grAccent = Color(red: 1.0, green: 0x8C / 255, blue: 0)
+    /// `--gr-gold` #F59E0B
+    static let grGold = Color(red: 0xF5 / 255, green: 0x9E / 255, blue: 0x0B / 255)
+    /// `--gr-pink` #FF6B8A
+    static let grPink = Color(red: 1.0, green: 0x6B / 255, blue: 0x8A / 255)
 }
